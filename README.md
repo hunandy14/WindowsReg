@@ -10,3 +10,14 @@ irm bit.ly/3GAuGRF|iex AutomaticUpdates -Manual
 # 恢復預設
 irm bit.ly/3GAuGRF|iex AutomaticUpdates
 ```
+
+#### WindowsDefenderAntivirus
+
+```
+# 完整關閉 WindowsDefender
+
+# 關閉即時掃描 (基本上就能避免 1. 砍你檔案 2. 阻擋執行非安全軟體)
+
+# 恢復預設
+
+```
