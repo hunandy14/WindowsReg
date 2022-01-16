@@ -5,10 +5,10 @@
 
 ```
 # 改為手動
-irm bit.ly/3GAuGRF|iex AutomaticUpdates -Manual
+irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
 
 # 恢復預設
-irm bit.ly/3GAuGRF|iex AutomaticUpdates
+irm bit.ly/3GAuGRF|iex; AutomaticUpdates
 ```
 
 #### WindowsDefenderAntivirus
