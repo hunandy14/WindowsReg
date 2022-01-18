@@ -21,8 +21,11 @@ function EdgeMediaControls {
         # $Path = "$env:AppData\Microsoft\Windows\Start Menu\Programs"
         $Path = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs"
         Start-BitsTransfer $Link "$Path\$shortcutName"
+        Write-Host "安裝完成::工作列圖示需要手動重新釘選(在開始搜尋edge然後右鍵釘選)" -ForegroundColor:Yellow
     } if ($StartUp) {
         $Path = "$env:AppData\Microsoft\Windows\Start Menu\Programs\Startup"
         Start-BitsTransfer $Link "$Path\$shortcutName"
     }
+    
+    Start-Process "https://charlottehong.blogspot.com/2022/01/edge-glodal-media-controls.html"
 }
