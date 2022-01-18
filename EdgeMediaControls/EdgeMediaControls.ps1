@@ -12,13 +12,14 @@ function EdgeMediaControls {
     Get-Process|Where-Object{$_.ProcessName.Contains("msedge")} | Stop-Process
     Start-Process $edgePath -ArgumentList:$edgeArgs
     # 安裝到指定位置
-    $shortcutName = "Edge Media Controls.lnk"
-    $Link = "https://github.com/hunandy14/WindowsReg/raw/master/EdgeMediaControls/Edge%20Media%20Controls.lnk"
+    $shortcutName = "Microsoft Edge.lnk"
+    $Link = "https://github.com/hunandy14/WindowsReg/raw/master/EdgeMediaControls/Microsoft%20Edge.lnk"
     if ($Desktop) {
         $Path = [Environment]::GetFolderPath("Desktop")
         Start-BitsTransfer $Link "$Path\$shortcutName"
     } if ($Start) {
-        $Path = "$env:AppData\Microsoft\Windows\Start Menu\Programs"
+        # $Path = "$env:AppData\Microsoft\Windows\Start Menu\Programs"
+        $Path = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs"
         Start-BitsTransfer $Link "$Path\$shortcutName"
     } if ($StartUp) {
         $Path = "$env:AppData\Microsoft\Windows\Start Menu\Programs\Startup"
