@@ -27,5 +27,6 @@ function EdgeMediaControls {
         Start-BitsTransfer $Link "$Path\$shortcutName"
     }
     
-    Start-Process "https://charlottehong.blogspot.com/2022/01/edge-glodal-media-controls.html"
+    $env:Path = $env:Path+";C:\Program Files (x86)\Microsoft\Edge\Application"
+    msedge.exe "https://charlottehong.blogspot.com/2022/01/edge-glodal-media-controls.html"
 }
