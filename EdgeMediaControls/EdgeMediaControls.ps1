@@ -19,6 +19,6 @@ function EdgeMediaControls {
     if ($Path) {
         $shortcutName = "Edge Media Controls.lnk"
         $Link = "https://github.com/hunandy14/WindowsReg/raw/master/EdgeMediaControls/Edge%20Media%20Controls.lnk"
-        Start-BitsTransfer $Link $shortcutName $Path
+        Start-BitsTransfer $Link "$Path\$shortcutName"
     }
 }
