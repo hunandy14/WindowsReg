@@ -3,11 +3,14 @@
 function EdgeMediaControls {
     param (
         [switch]$Desktop,
-        [switch]$Start
+        [switch]$Start,
+        [switch]$StartUp
     )
     if ($Desktop) {
         $Path = [Environment]::GetFolderPath("Desktop")
     } elseif ($Start) {
+        $Path = "$env:AppData\Microsoft\Windows\Start Menu\Programs"
+    } elseif ($StartUp) {
         $Path = "$env:AppData\Microsoft\Windows\Start Menu\Programs\Startup"
     }
     # 重啟到 MediaControls 模式
