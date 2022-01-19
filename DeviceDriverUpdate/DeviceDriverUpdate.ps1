@@ -1,18 +1,26 @@
 function DeviceDriverUpdate {
     param (
+        [Parameter(Position = 0, ParameterSetName = "")]
         [String] $Name
     )
     if (!$Name) { #復原
-        # reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall" /f
+        reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall" /f
+        Write-Host "已恢復所有設備均可自動更新" -ForegroundColor:Yellow;
         return
     }
     $dev = (Get-PnpDevice -PresentOnly) -match($Name); $dev
-    Write-Host "是否禁用上述設備的自動更新"
+    if ($dev.Count -eq 0) {
+        Write-Host "找不到裝置..." -ForegroundColor:Yellow;
+        return
+    }
+    Write-Host "是否禁用上述設備的自動更新" -ForegroundColor:Yellow;
     $response = Read-Host " 沒有異議，請輸入Y (Y/N) ";
     if ($response -ne "Y" -or $response -ne "Y") { Write-Host "使用者中斷" -ForegroundColor:Red; return; }
     
     # 禁用裝置
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" /v DenyDeviceIDs /t REG_DROWD /d 00000001 /f
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions" /v DenyDeviceIDsRetroactive /t REG_DROWD /d 00000000 /f
-    $dev.DeviceID|ForEach-Object{ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceIDs" /v 1 /d $_ /f }
+    reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions /v DenyDeviceIDs /t REG_DWORD /d 00000001 /f
+    reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions /v DenyDeviceIDsRetroactive /t REG_DWORD /d 00000000 /f
+    for ($i = 0; $i -lt $dev.Count; $i++) {
+        reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceIDs /v ($i+1) /d $dev.DeviceID[$i] /f
+    }
 } # DeviceDriverUpdate -Name:"AMD|NVIDIA"

@@ -36,3 +36,14 @@ irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus
 irm bit.ly/3IeentX|iex; EdgeMediaControls -Desktop -Start
 
 ```
+
+### DeviceDriverUpdate
+禁止微軟更新特定裝置的驅動程式
+
+```
+# 禁止微軟自動更新 NVIDI 和 AMD 設備的驅動程式
+irm bit.ly/3IgtUJU|iex; DeviceDriverUpdate -Name:"AMD|NVIDIA"
+
+# 恢復所有設備自動更新
+irm bit.ly/3IgtUJU|iex; DeviceDriverUpdate
+```
