@@ -23,4 +23,7 @@ function DeviceDriverUpdate {
     for ($i = 0; $i -lt $dev.Count; $i++) {
         reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceIDs /v ($i+1) /d $dev.DeviceID[$i] /f
     }
+    
+    $env:Path = $env:Path+";C:\Program Files (x86)\Microsoft\Edge\Application"
+    msedge.exe "https://charlottehong.blogspot.com/2022/01/nvidia-or-amd.html"
 } # DeviceDriverUpdate -Name:"AMD|NVIDIA"
