@@ -26,7 +26,9 @@ irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus
 ```
 
 #### Install-Regjump
-
+```
+irm raw.githubusercontent.com/hunandy14/WindowsReg/master/regjump/regjump.ps1|iex; Install-Regjump
+```
 
 #### EdgeMediaControls
 提示：工作列的圖示可能需要重新釘選
