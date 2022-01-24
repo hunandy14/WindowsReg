@@ -43,11 +43,13 @@ function CHG_Setting {
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{5399E694-6CE5-4D6C-8FCE-1D8870FDCBA0}" /t REG_DWORD /d 1 /f
     # 桌面圖示 - 資源回收桶
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{645FF040-5081-101B-9F08-00AA002F954E}" /t REG_DWORD /d 0 /f
+    Stop-Process -ProcessName explorer
 
     # NumLock
     reg add "HKEY_USERS\.DEFAULT\Control Panel\Keyboard" /v InitialKeyboardIndicators /t REG_SZ /d 2 /f
     
-    Stop-Process -ProcessName explorer
+    # 設定更新
+    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
     
     # 安裝 powertoys
     Set-ExecutionPolicy Bypass -S:Process -F; irm chocolatey.org/install.ps1|iex; choco install -y powertoys
