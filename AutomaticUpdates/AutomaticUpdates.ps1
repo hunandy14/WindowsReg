@@ -12,9 +12,12 @@ function AutomaticUpdates {
         reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v ScheduledInstallEveryWeek /t REG_DWORD /d 00000001 /f
     } elseif ($Stop) {
         AutomaticUpdates
-        reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v NoAutoUpdate /t REG_DWORD /d 00000001 /f
+        # reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v NoAutoUpdate /t REG_DWORD /d 00000001 /f
+        net stop wuauserv; sleep 1; (Get-Service -Name:wuauserv)|Set-Service -Status:Stopped -StartupType:disabled
     }
     else { # 恢復為未設定狀態
+        (Get-Service -Name:wuauserv)|Set-Service -Status:Running -StartupType:Automatic
+        net start wuauserv
         if (Test-Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate") {
             reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate /f
         }
