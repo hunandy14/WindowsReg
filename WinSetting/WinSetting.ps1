@@ -52,3 +52,16 @@ function CHG_Setting {
     # 安裝 powertoys
     Set-ExecutionPolicy Bypass -S:Process -F; irm chocolatey.org/install.ps1|iex; choco install -y powertoys
 }
+
+function CHG_Soft() {
+    Set-ExecutionPolicy Bypass -S:Process -F
+    irm chocolatey.org/install.ps1|iex
+    
+    choco install -y powertoys
+    choco install -y 7zip
+    choco install -y javaruntime
+    choco install -y adobereader
+    choco install -y googlechrome
+    choco install -y k-litecodecpackmega
+    choco install -y line
+}
