@@ -48,8 +48,10 @@ function CHG_Setting {
     # NumLock
     reg add "HKEY_USERS\.DEFAULT\Control Panel\Keyboard" /v InitialKeyboardIndicators /t REG_SZ /d 2 /f
     
-    # 設定更新
+    # 設定成手動更新
     irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
+    # 關閉及時掃描
+    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
 }
 
 function CHG_Soft() {
