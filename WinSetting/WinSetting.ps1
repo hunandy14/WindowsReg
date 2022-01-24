@@ -50,9 +50,6 @@ function CHG_Setting {
     
     # 設定更新
     irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
-    
-    # 安裝 powertoys
-    Set-ExecutionPolicy Bypass -S:Process -F; irm chocolatey.org/install.ps1|iex; choco install -y powertoys
 }
 
 function CHG_Soft() {
