@@ -9,3 +9,8 @@ irm bit.ly/3GYlNBo|iex; OnceRightClick -Once
 # 復原
 irm bit.ly/3GYlNBo|iex; OnceRightClick
 ```
+
+## 個人設定
+```
+irm bit.ly/3GYlNBo|iex; CHG_Setting
+```
