@@ -44,4 +44,6 @@ function CHG_Setting {
 
     # NumLock
     reg add "HKEY_USERS\.DEFAULT\Control Panel\Keyboard" /v InitialKeyboardIndicators /t REG_SZ /d 2 /f
+    
+    Stop-Process -ProcessName explorer
 }
