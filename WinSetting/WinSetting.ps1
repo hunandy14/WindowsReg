@@ -27,7 +27,7 @@ function CHG_Setting {
     # 顯示副檔名
     reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f
     # 顯示隱藏檔案
-    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Hidden /t REG_DWORD /d 1 /f
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Hidden /t REG_DWORD /d 0 /f
     # 顯示隱藏系統檔
     reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowSuperHidden /t REG_DWORD /d 1 /f
     # 打開上一次登入時的資料夾
@@ -48,4 +48,7 @@ function CHG_Setting {
     reg add "HKEY_USERS\.DEFAULT\Control Panel\Keyboard" /v InitialKeyboardIndicators /t REG_SZ /d 2 /f
     
     Stop-Process -ProcessName explorer
+    
+    # 安裝 powertoys
+    Set-ExecutionPolicy Bypass -S:Process -F; irm chocolatey.org/install.ps1|iex; choco install -y powertoys
 }
