@@ -50,6 +50,11 @@ function CHG_Setting {
     # NumLock
     reg add "HKEY_USERS\.DEFAULT\Control Panel\Keyboard" /v InitialKeyboardIndicators /t REG_SZ /d 2 /f
     
+    # 新注音預設為英文狀態
+    reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\IME\15.0\IMETC" /v "Default Input Mode" /t REG_SZ /d "0x00000001" /f
+    # 新注音預設為繁體狀態
+    # reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\IME\15.0\IMETC" /v "Enable Simplified Chinese Output" /t REG_SZ /d "0x00000000" /f
+    
     # 設定成手動更新
     irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
     # 關閉及時掃描
