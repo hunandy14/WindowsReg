@@ -42,18 +42,17 @@ function LockWindowsVersion {
     param (
         [Parameter(Position = 0, ParameterSetName = "Current", Mandatory=$true)]
         [switch]$Current,
+        [Parameter(Position = 0, ParameterSetName = "Version", Mandatory=$true)]
+        [string]$Version,
         [Parameter(Position = 0, ParameterSetName = "Recovery", Mandatory=$true)]
         [switch]$Unlock
     )
+    
     if ($Current) {
         $Systems = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").ProductName
         $Version = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").DisplayVersion
-        reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate /v TargetReleaseVersion /t REG_DWORD /d 00000001 /f
-        reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate /v ProductVersion /t REG_SZ /d $Systems /f
-        reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate /v TargetReleaseVersionInfo /t REG_SZ /d $Version /f
-        Write-Host "已將 Windows 鎖定在 " -NoNewline
-        Write-Host "$Systems $Version" -NoNewline -ForegroundColor:Yellow
-        Write-Host " 版本"
+    } elseif ($Version) {
+        $Systems = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").ProductName
     } elseif ($Unlock) {
         if (Get-ItemProperty -Path "HKLM:HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name TargetReleaseVersion -ErrorAction SilentlyContinue) {
             reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate /v TargetReleaseVersion /f
@@ -61,5 +60,15 @@ function LockWindowsVersion {
             reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate /v TargetReleaseVersionInfo /f
         }
         Write-Host "已解除 Windows 版本鎖定" -NoNewline
+        return
     }
-} #LockWindowsVersion -Current
+    reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate /v TargetReleaseVersion /t REG_DWORD /d 00000001 /f
+    reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate /v ProductVersion /t REG_SZ /d $Systems /f
+    reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate /v TargetReleaseVersionInfo /t REG_SZ /d $Version /f
+    Write-Host "已將 Windows 鎖定在 " -NoNewline
+    Write-Host "$Systems $Version" -NoNewline -ForegroundColor:Yellow
+    Write-Host " 版本"
+}
+# LockWindowsVersion -Current
+# LockWindowsVersion -Version:21H2
+

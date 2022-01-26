@@ -15,8 +15,11 @@ irm bit.ly/3GAuGRF|iex; AutomaticUpdates
 ```
 
 ```
-# 鎖定Windows版本
+# 鎖定當前 Windows 版本
 irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Current
+
+# 鎖定指定 Windows 版本
+irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Version:21H2
 
 # 解除鎖定Windows版本
 irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Unlock
