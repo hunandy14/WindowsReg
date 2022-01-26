@@ -14,6 +14,14 @@ irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
 irm bit.ly/3GAuGRF|iex; AutomaticUpdates
 ```
 
+```
+# 鎖定Windows版本
+irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Current
+
+# 解除鎖定Windows版本
+irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Unlock
+```
+
 #### WindowsDefenderAntivirus
 
 ```
