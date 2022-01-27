@@ -21,7 +21,7 @@ irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Current
 # 鎖定指定 Windows 版本
 irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Version:21H2
 
-# 解除鎖定Windows版本
+# 解除鎖定
 irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Unlock
 ```
 
