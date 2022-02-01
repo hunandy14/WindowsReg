@@ -39,6 +39,20 @@ irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus
 
 ```
 
+#### Windows UAC
+```
+# 不要把桌面變黑
+irm bit.ly/3Gca80R|iex; SetUAC -Set:1
+
+# 關閉提醒
+irm bit.ly/3Gca80R|iex; SetUAC -Set:0
+
+# 恢復預設
+irm bit.ly/3Gca80R|iex; SetUAC -Default
+
+```
+
+
 #### Install-Regjump
 ```
 irm raw.githubusercontent.com/hunandy14/WindowsReg/master/regjump/regjump.ps1|iex; Install-Regjump
