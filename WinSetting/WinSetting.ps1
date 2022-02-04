@@ -1,11 +1,24 @@
-function WinSetting {
-    param (
-        [string]$s
-    )
-    
+# ==================================================================================================
+# 系統設定::通常設定
+function Setting_System(){
+        # UAC 不要把桌面變黑
+        irm bit.ly/3Gca80R|iex; SetUAC -Set:1
+        # 設定成手動更新
+        irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
+        # 關閉及時掃描
+        irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
 }
-
-function CHG_Setting {
+# 系統設定::測試機用
+function Setting_System2(){
+    # 關閉 UAC
+    irm bit.ly/3Gca80R|iex; SetUAC -Set:0
+    # 設定成手動更新
+    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
+    # 關閉防毒
+    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -Disable
+}
+# 使用者設定::通常
+function Setting_User() {
     # 去除捷徑字樣
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer" /v link /t REG_BINARY /d 00000000 /f
     # 檔案管理員預設打開(1本機 2快速存取)
@@ -41,17 +54,24 @@ function CHG_Setting {
     reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\IME\15.0\IMETC" /v "Default Input Mode" /t REG_SZ /d "0x00000001" /f
     # 新注音預設為繁體狀態
     # reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\IME\15.0\IMETC" /v "Enable Simplified Chinese Output" /t REG_SZ /d "0x00000000" /f
-    
-    # UAC 不要把桌面變黑
-    irm bit.ly/3Gca80R|iex; SetUAC -Set:1
-    
-    # 設定成手動更新
-    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
-    # 關閉及時掃描
-    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
+}
+# ==================================================================================================
+# 個人用設定
+function CHG_Setting() {
+    Setting_User
+    Setting_System
+}
+# 測試用系統
+function VM_Setting() {
+    Setting_User
+    Setting_System2
+    Set-ExecutionPolicy Bypass -S:Process -F
+    irm chocolatey.org/install.ps1|iex
+    choco install -y 7zip
+    choco install -y vscode
 }
 
-function CHG_Soft() {
+function Soft() {
     Set-ExecutionPolicy Bypass -S:Process -F
     irm chocolatey.org/install.ps1|iex
     
