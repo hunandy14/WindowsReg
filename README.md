@@ -1,6 +1,7 @@
 各項 Windows 設定快捷總整理
 ===
 
+# 系統
 #### WindowsUpdate
 
 ```
@@ -52,6 +53,16 @@ irm bit.ly/3Gca80R|iex; SetUAC -Default
 
 ```
 
+# 其他
+
+### Win11 右鍵自動展開
+```
+# Win11 右鍵自動展開
+irm bit.ly/3s9kWHO|iex; OnceRightClick -Once
+
+# 復原
+irm bit.ly/3s9kWHO|iex; OnceRightClick
+```
 
 #### Install-Regjump
 ```

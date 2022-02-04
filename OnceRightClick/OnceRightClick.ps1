@@ -1,3 +1,4 @@
+# Win11右鍵選單自動展開
 function OnceRightClick {
     param (
         [switch] $Once
