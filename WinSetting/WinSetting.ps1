@@ -8,12 +8,13 @@ function Setting_System(){
         # 關閉及時掃描
         irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
 }
-# 系統設定::測試機用
+# 系統設定::測試用虛擬機設定
 function Setting_System2(){
     # 關閉 UAC
     irm bit.ly/3Gca80R|iex; SetUAC -Set:0
     # 設定成手動更新
-    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
+    # irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
+    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
     # 關閉防毒
     irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -Disable
 }
