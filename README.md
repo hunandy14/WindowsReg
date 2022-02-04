@@ -1,5 +1,10 @@
-各項 Windows 設定快捷總整理
+各項 Windows 設定快捷總整理  
 ===
+
+許願池可以到issues裡面提交  
+https://github.com/hunandy14/WindowsReg/issues
+
+<br><br>
 
 # 系統
 #### WindowsUpdate
@@ -53,8 +58,9 @@ irm bit.ly/3Gca80R|iex; SetUAC -Default
 
 ```
 
-# 其他
+<br><br>
 
+# 個人化設定
 ### Win11 右鍵自動展開
 ```
 # Win11 右鍵自動展開
@@ -64,13 +70,16 @@ irm bit.ly/3s9kWHO|iex; OnceRightClick -Once
 irm bit.ly/3s9kWHO|iex; OnceRightClick
 ```
 
+<br><br>
+
+# 其他
 #### Install-Regjump
 ```
 irm raw.githubusercontent.com/hunandy14/WindowsReg/master/regjump/regjump.ps1|iex; Install-Regjump
 ```
 
 #### EdgeMediaControls
-提示：工作列的圖示可能需要重新釘選
+提示：工作列的圖示可能需要重新釘選  
 
 ```
 # 將設定值的捷徑覆蓋到桌面及開始選單的 EDGE
@@ -79,7 +88,7 @@ irm bit.ly/3IeentX|iex; EdgeMediaControls -Desktop -Start
 ```
 
 ### DeviceDriverUpdate
-禁止微軟更新特定裝置的驅動程式
+禁止微軟更新特定裝置的驅動程式  
 
 ```
 # 禁止微軟自動更新 NVIDI 和 AMD 設備的驅動程式
