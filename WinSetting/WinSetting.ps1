@@ -55,6 +55,9 @@ function Setting_User() {
     reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\IME\15.0\IMETC" /v "Default Input Mode" /t REG_SZ /d "0x00000001" /f
     # 新注音預設為繁體狀態
     # reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\IME\15.0\IMETC" /v "Enable Simplified Chinese Output" /t REG_SZ /d "0x00000000" /f
+    
+    # netplwiz 恢復自動登入選項
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\PasswordLess\Device" /v "DevicePasswordLessBuildVersion" /t REG_DWORD /d 0 /f
 }
 # ==================================================================================================
 # 個人用設定
