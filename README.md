@@ -97,3 +97,8 @@ irm bit.ly/3IgtUJU|iex; DeviceDriverUpdate -Name:"AMD|NVIDIA"
 # 恢復所有設備自動更新
 irm bit.ly/3IgtUJU|iex; DeviceDriverUpdate
 ```
+
+### 家用版啟用群組原則(gpedit.msc)
+```
+irm bit.ly/35EVGlc|iex; GpeditEbable
+```
