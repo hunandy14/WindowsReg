@@ -8,6 +8,11 @@ function AutomaticUpdates {
         if (Test-Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU") {
             reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /f
         }
+        (Get-Service -Name:wuauserv)|Set-Service -StartupType:Automatic
+        if ((Get-Service -Name:wuauserv).Status -eq "Stopped") { 
+            net start wuauserv
+            (Get-Service -Name:wuauserv)|Select-Object Name,DisplayName,Status,StartType
+        }
         reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v NoAutoUpdate /t REG_DWORD /d 00000000 /f
         reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v AUOptions /t REG_DWORD /d 00000002 /f
         reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v ScheduledInstallDay /t REG_DWORD /d 00000000 /f
