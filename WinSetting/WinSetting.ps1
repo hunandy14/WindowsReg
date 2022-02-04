@@ -87,3 +87,9 @@ function Soft() {
     choco install -y k-litecodecpackmega
     choco install -y line
 }
+
+function WindowsActive($KMS) {
+    slmgr /ipk W269N-WFGWX-YVC9B-4J6C9-T83GX
+    slmgr /skms $KMS
+    slmgr /ato
+}

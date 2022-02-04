@@ -12,3 +12,8 @@ irm bit.ly/3GYlNBo|iex; CHG_Setting
 ```
 irm bit.ly/3GYlNBo|iex; VM_Setting
 ```
+
+啟用KMS伺服器
+```
+irm bit.ly/3GYlNBo|iex; WindowsActive kms..org
+```
