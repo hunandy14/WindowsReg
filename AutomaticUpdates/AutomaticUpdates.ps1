@@ -41,7 +41,8 @@ function AutomaticUpdates {
             (Get-Service -Name:wuauserv)|Select-Object Name,DisplayName,Status,StartType
         }
     }
-}
+} # AutomaticUpdates -Manual
+
 # 鎖定Windows版本
 function LockWindowsVersion {
     param (
@@ -73,7 +74,26 @@ function LockWindowsVersion {
     Write-Host "已將 Windows 鎖定在 " -NoNewline
     Write-Host "$Systems $Version" -NoNewline -ForegroundColor:Yellow
     Write-Host " 版本"
-}
-# LockWindowsVersion -Current
+} # LockWindowsVersion -Current
 # LockWindowsVersion -Version:21H2
 
+function Win11_Update {
+    param (
+        [Parameter(Position = 0, ParameterSetName = "Unlock", Mandatory=$true)]
+        [switch]$Unlock,
+        [Parameter(Position = 0, ParameterSetName = "Recovery", Mandatory=$true)]
+        [switch]$Recovery
+    )
+    # https://support.microsoft.com/zh-tw/windows/%E5%AE%89%E8%A3%9D-windows-11-%E7%9A%84%E6%96%B9%E6%B3%95-e0edbbfb-cfc5-4011-868b-2ce77ac7c70e
+    if ($Unlock) {
+        reg add HKEY_LOCAL_MACHINE\SYSTEM\Setup\MoSetup /v AllowUpgradesWithUnsupportedTPMOrCPU /t REG_DWORD /d 1 /f
+        Write-Host "已解除CPU與TPM限制，請直接執行ISO中的安裝檔更新Win11" -ForegroundColor:Yellow
+        Write-Host "  注意：無法從 [電腦健康情況檢查] 與 [更新] 中確認或更新，頁面仍會顯示電腦不支援"
+        
+    } elseif ($Recovery) {
+        if (Get-ItemProperty -Path "HKLM:\SYSTEM\Setup\MoSetup" -Name:AllowUpgradesWithUnsupportedTPMOrCPU -ErrorAction SilentlyContinue) {
+            reg delete HKEY_LOCAL_MACHINE\SYSTEM\Setup\MoSetup /v AllowUpgradesWithUnsupportedTPMOrCPU /f
+        }
+        Write-Host "已還原CPU與TPM限制" -ForegroundColor:Yellow
+    }
+} # Win11_Update -Unlock
