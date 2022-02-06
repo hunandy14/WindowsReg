@@ -31,6 +31,14 @@ irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Version:21H2
 irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Unlock
 ```
 
+```
+# 解除升級 Windows11 限制
+irm bit.ly/3GAuGRF|iex; Win11_Update -Unlock
+
+# 還原升級 Windows11 限制
+irm bit.ly/3GAuGRF|iex; Win11_Update -Recovery
+```
+
 #### WindowsDefenderAntivirus
 
 ```
