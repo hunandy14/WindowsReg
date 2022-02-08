@@ -1,6 +1,6 @@
 # ==================================================================================================
 # 系統設定::通常設定
-function Setting_System(){
+function Setting_System{
         # UAC 不要把桌面變黑
         irm bit.ly/3Gca80R|iex; SetUAC -Set:1
         # 設定成手動更新
@@ -9,7 +9,7 @@ function Setting_System(){
         irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
 }
 # 系統設定::測試用虛擬機設定
-function Setting_System2(){
+function Setting_System2{
     # 關閉 UAC
     irm bit.ly/3Gca80R|iex; SetUAC -Set:0
     # 設定成手動更新
@@ -19,7 +19,7 @@ function Setting_System2(){
     irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -Disable
 }
 # 使用者設定::通常
-function Setting_User() {
+function Setting_User {
     # 去除捷徑字樣
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer" /v link /t REG_BINARY /d 00000000 /f
     # 檔案管理員預設打開(1本機 2快速存取)
@@ -61,16 +61,16 @@ function Setting_User() {
 }
 # ==================================================================================================
 # 個人用設定
-function CHG_Setting() {
+function CHG_Setting {
     Setting_User
     Setting_System
 }
 # 測試用系統
-function VM_Setting() {
+function VM_Setting {
     Setting_User
     Setting_System2
 }
-function VM_Setting1() {
+function VM_Setting1 {
     Setting_User
     Setting_System2
     Set-ExecutionPolicy Bypass -S:Process -F
@@ -79,7 +79,7 @@ function VM_Setting1() {
     choco install -y vscode
 }
 
-function Soft() {
+function Soft {
     Set-ExecutionPolicy Bypass -S:Process -F
     irm chocolatey.org/install.ps1|iex
     
@@ -92,7 +92,10 @@ function Soft() {
     choco install -y line
 }
 
-function WindowsActive($KMS) {
+function WindowsActive {
+    param (
+        [string] $KMS
+    )
     slmgr /ipk W269N-WFGWX-YVC9B-4J6C9-T83GX
     slmgr /skms $KMS
     slmgr /ato
