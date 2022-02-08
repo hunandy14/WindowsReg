@@ -69,6 +69,10 @@ function CHG_Setting() {
 function VM_Setting() {
     Setting_User
     Setting_System2
+}
+function VM_Setting1() {
+    Setting_User
+    Setting_System2
     Set-ExecutionPolicy Bypass -S:Process -F
     irm chocolatey.org/install.ps1|iex
     choco install -y 7zip

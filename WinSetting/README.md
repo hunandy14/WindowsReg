@@ -10,7 +10,10 @@ irm bit.ly/3GYlNBo|iex; CHG_Setting
 
 虛擬機設定
 ```
+# 僅設定
 irm bit.ly/3GYlNBo|iex; VM_Setting
+# 設定與軟體
+irm bit.ly/3GYlNBo|iex; VM_Setting1
 ```
 
 啟用KMS伺服器
