@@ -83,7 +83,7 @@ irm bit.ly/3s9kWHO|iex; OnceRightClick
 # 其他
 #### Install-Regjump
 ```
-irm raw.githubusercontent.com/hunandy14/WindowsReg/master/regjump/regjump.ps1|iex; Install-Regjump
+irm bit.ly/3BkBukF|iex; Install-Regjump
 ```
 
 #### EdgeMediaControls
