@@ -85,6 +85,7 @@ function Win11_Update {
         [switch]$Recovery
     )
     # https://support.microsoft.com/zh-tw/windows/%E5%AE%89%E8%A3%9D-windows-11-%E7%9A%84%E6%96%B9%E6%B3%95-e0edbbfb-cfc5-4011-868b-2ce77ac7c70e
+    # https://www.microsoft.com/en-us/software-download/windowsinsiderpreviewpchealth
     if ($Unlock) {
         reg add HKEY_LOCAL_MACHINE\SYSTEM\Setup\MoSetup /v AllowUpgradesWithUnsupportedTPMOrCPU /t REG_DWORD /d 1 /f
         Write-Host "已解除CPU與TPM限制，請直接執行ISO中的安裝檔更新Win11" -ForegroundColor:Yellow
