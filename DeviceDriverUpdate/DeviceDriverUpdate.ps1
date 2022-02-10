@@ -3,30 +3,23 @@ function DeviceDriverUpdate {
         [Parameter(Position = 0, ParameterSetName = "")]
         [String] $Name
     )
-    $Device = ((Get-WmiObject -Class CIM_PCVideoController)|Select-Object Name, PNPDeviceID)
-    if ($Device -eq "") { Write-Host "ERROR:: No display Device" -F:yellow; return }
-    $Device | Select-Object Name, PNPDeviceID
-    
-    $DeviceID = "PCI\"+($Device.PNPDeviceID.Split('\'))[1]
-    
-    $regPath1 = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions"
-    $regPath2 = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions\DenyDeviceIDs"
-    
-    if ($Recovery) {
-        reg delete $regPath2
+    if($Name){
+        irm bit.ly/3fqFUMs|iex; DisableVideoDriverUpdate -Name:$Name
     } else {
-        reg add $regPath1 /f /t "REG_DWORD" /v "DenyDeviceIDs" /d "1"
-        reg add $regPath1 /f /t "REG_DWORD" /v "DenyDeviceIDsRetroactive" /d "0"
-        reg add $regPath2 /f /t "REG_SZ" /v "1" /d $DeviceID
+        irm bit.ly/3fqFUMs|iex; DisableVideoDriverUpdate -Recovery
     }
+    
 } # DeviceDriverUpdate -Name:AMD
 
 
+# 廢棄錯了
 function DeviceDriverUpdate_XXXXXXX {
     param (
         [Parameter(Position = 0, ParameterSetName = "")]
         [String] $Name
     )
+    return
+    
     if (!$Name) { #復原
         reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall" /f
         Write-Host "已恢復所有設備均可自動更新" -ForegroundColor:Yellow;
