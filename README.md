@@ -39,6 +39,17 @@ irm bit.ly/3GAuGRF|iex; Win11_Update -Unlock
 irm bit.ly/3GAuGRF|iex; Win11_Update -Recovery
 ```
 
+```
+# 關閉現代待機
+irm bit.ly/3JiAEaA|iex; InstantGo -Disable
+
+# 開啟現代待機
+irm bit.ly/3JiAEaA|iex; InstantGo -Enable
+
+# 查看狀態
+irm bit.ly/3JiAEaA|iex; InstantGo -Info
+```
+
 #### WindowsDefenderAntivirus
 
 ```
