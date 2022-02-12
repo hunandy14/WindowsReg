@@ -71,11 +71,30 @@ function CHG_Setting {
 # 測試用系統
 function VM_Setting {
     Setting_User
-    Setting_System2
+    # 檔案管理員預設打開(1本機 2快速存取)
+    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 1 /f
+    
+    # 關閉 UAC
+    irm bit.ly/3Gca80R|iex; SetUAC -Set:0
+    # 設定成手動更新
+    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
+    # 關閉防毒
+    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -Disable
 }
-function VM_Setting1 {
+function VM_Setting2 {
     Setting_User
-    Setting_System2
+    # 檔案管理員預設打開(1本機 2快速存取)
+    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 1 /f
+    
+    
+    # 關閉 UAC
+    irm bit.ly/3Gca80R|iex; SetUAC -Set:0
+    # 設定成手動更新
+    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
+    # 關閉防毒
+    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -Disable
+    
+    
     Set-ExecutionPolicy Bypass -S:Process -F
     irm chocolatey.org/install.ps1|iex
     choco install -y 7zip
