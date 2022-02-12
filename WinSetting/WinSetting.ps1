@@ -97,8 +97,7 @@ function VM_Setting2 {
     
     Set-ExecutionPolicy Bypass -S:Process -F
     irm chocolatey.org/install.ps1|iex
-    choco install -y 7zip
-    choco install -y vscode
+    choco install -y 7zip git vscode
 }
 
 function Soft {
@@ -116,6 +115,7 @@ function Soft {
 
 function WindowsActive {
     param (
+        [Parameter(Position = 0, ParameterSetName = "", Mandatory=$true)]
         [string] $KMS
     )
     slmgr /ipk W269N-WFGWX-YVC9B-4J6C9-T83GX
