@@ -13,17 +13,23 @@ function FirefoxUpdate {
         `"DisableAppUpdate`": true
     `}
 `}"
-        if ( Test-Path "$FirfoxPath\$FileName" ) {
+        if ( Test-Path $File ) {
             [System.IO.File]::WriteAllText($File, $Config)
         } else {
             Write-Host "追加設定檔：" "$FirfoxPath\$FileName"
             (New-Item $File -ItemType:File -Force)|Out-Null
             [System.IO.File]::WriteAllText($File, $Config)
+            Write-Host "已停用火狐更新"
         }
     } elseif ($Enable) {
-        Move-Item $File "$File.backup"
+        if ( Test-Path $File ) {
+            Move-Item $File "$File.backup" -Force
+        }
+        Write-Host "已恢復火狐更新"
     }
     
     Get-Process|Where-Object{$_.ProcessName.Contains("firefox")} | Stop-Process
     Start-Process "C:\Program Files\Mozilla Firefox\firefox.exe"
-} # FirefoxUpdate -Dislable
+} 
+# FirefoxUpdate -Enable
+# FirefoxUpdate -Dislable
