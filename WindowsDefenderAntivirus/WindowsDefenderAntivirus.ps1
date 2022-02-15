@@ -25,4 +25,5 @@ function WindowsDefenderAntivirus {
             reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /f
         }
     }
+    Start-Process windowsdefender://threat
 } # WindowsDefenderAntivirus -DisableRealtime
