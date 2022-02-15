@@ -3,7 +3,9 @@ function WindowsDefenderAntivirus {
         [Parameter(ParameterSetName = "")]
         [switch] $Disable,
         [Parameter(ParameterSetName = "")]
-        [switch] $DisableRealtime
+        [switch] $DisableRealtime,
+        [Parameter(ParameterSetName = "")]
+        [switch] $NotOpenSetting
     )
     if ($Disable) { # 關閉所有功能
         WindowsDefenderAntivirus
@@ -25,5 +27,7 @@ function WindowsDefenderAntivirus {
             reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /f
         }
     }
-    Start-Process windowsdefender://threat
+    if (!$NotOpenSetting) {
+        Start-Process windowsdefender://threat
+    }
 } # WindowsDefenderAntivirus -DisableRealtime
