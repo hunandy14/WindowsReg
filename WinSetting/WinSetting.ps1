@@ -79,7 +79,7 @@ function VM_Setting {
     # 設定成手動更新
     irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
     # 關閉防毒
-    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -Disable
+    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
 }
 function VM_Setting2 {
     Setting_User
@@ -92,7 +92,7 @@ function VM_Setting2 {
     # 設定成手動更新
     irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
     # 關閉防毒
-    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -Disable
+    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
     
     
     Set-ExecutionPolicy Bypass -S:Process -F
