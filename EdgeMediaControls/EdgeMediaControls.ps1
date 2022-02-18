@@ -9,7 +9,7 @@ function EdgeMediaControls {
     # 重啟到 MediaControls 模式
     $edgePath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
     $edgeArgs = "--enable-features=GlobalMediaControls"
-    Get-Process|Where-Object{$_.ProcessName.Contains("msedge")} | Stop-Process
+    Get-Process|Where-Object{$_.ProcessName.Contains("msedge")} | Stop-Process -Force
     Start-Process $edgePath -ArgumentList:$edgeArgs
     # 安裝到指定位置
     $shortcutName = "Microsoft Edge.lnk"
