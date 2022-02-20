@@ -4,8 +4,8 @@
 
 ```
 # 開啟靜音模式
-irm bit.ly/3sOiiYu|iex; LineRingMute LineRingMute -Enable
+irm bit.ly/3sOiiYu|iex; LineRingMute -Enable
 
 # 關閉靜音模式
-irm bit.ly/3sOiiYu|iex; LineRingMute LineRingMute -Disable
+irm bit.ly/3sOiiYu|iex; LineRingMute -Disable
 ```
