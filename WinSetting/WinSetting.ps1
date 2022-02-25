@@ -25,8 +25,8 @@ function Setting_User {
     # 檔案管理員預設打開(1本機 2快速存取)
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 2 /f
     
-    # 工作列按鈕不要合併
-    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarGlomLevel /t REG_DWORD /d 1 /f
+    # 工作列按鈕不要合併(0結合 1滿時結合 2不結合)
+    reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarGlomLevel /t REG_DWORD /d 2 /f
     # 顯示副檔名
     reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f
     # 顯示隱藏檔案
@@ -73,11 +73,12 @@ function VM_Setting {
     Setting_User
     # 檔案管理員預設打開(1本機 2快速存取)
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 1 /f
-    
+    # Win111自動展開右鍵
+    reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /ve /t REG_SZ /f
     # 關閉 UAC
     irm bit.ly/3Gca80R|iex; SetUAC -Set:0
     # 設定成手動更新
-    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
+    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
     # 關閉防毒
     irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
 }
@@ -85,7 +86,8 @@ function VM_Setting2 {
     Setting_User
     # 檔案管理員預設打開(1本機 2快速存取)
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 1 /f
-    
+    # Win111自動展開右鍵
+    reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /ve /t REG_SZ /f
     
     # 關閉 UAC
     irm bit.ly/3Gca80R|iex; SetUAC -Set:0
