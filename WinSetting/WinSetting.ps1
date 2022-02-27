@@ -100,7 +100,7 @@ function VM_Setting2 {
     Set-ExecutionPolicy Bypass -S:Process -F
     irm chocolatey.org/install.ps1|iex
     choco install -y 7zip
-    choco install -y git vscode
+    choco install -y git --params "/NoShellIntegration" vscode
     choco install -y powershell-core
 }
 
