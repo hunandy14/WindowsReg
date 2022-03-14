@@ -11,17 +11,18 @@ function LineRingMute {
     $ACL = Get-ACL $File
     if ($Enable) { 
         # 撤銷權限
-        $ACL.RemoveAccessRule($AccessRule); $ACL|Set-Acl $File
+        $ACL.RemoveAccessRule($AccessRule)|Out-Null; $ACL|Set-Acl $File
         Set-ItemProperty $File IsReadOnly $false
         # 拒絕寫入
         Invoke-WebRequest $MuteRing -OutFile:$File
         Set-ItemProperty $File IsReadOnly $true
-        $ACL.SetAccessRule($AccessRule); $ACL|Set-Acl $File
+        $ACL.SetAccessRule($AccessRule)|Out-Null; $ACL|Set-Acl $File
     } elseif ($Disable) {
         # 撤銷權限
-        $ACL.RemoveAccessRule($AccessRule); $ACL|Set-Acl $File
+        $ACL.RemoveAccessRule($AccessRule)|Out-Null; $ACL|Set-Acl $File
         Set-ItemProperty $File IsReadOnly $false
     }
     # 確認
+    Write-Host $File
     (Get-ACL $File).Access|Format-Table IdentityReference,FileSystemRights,AccessControlType,IsInherited,InheritanceFlags -AutoSize
 } # LineRingMute -Enable
