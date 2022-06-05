@@ -24,4 +24,4 @@ function OpenGLDetected {
     } else {
         Write-Host "當前狀態："$Content[1]
     }
-} OpenGLDetected
+} # OpenGLDetected
