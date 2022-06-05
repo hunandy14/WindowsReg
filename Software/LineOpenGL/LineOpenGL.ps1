@@ -1,9 +1,6 @@
-
 function OpenGLDetected {
     param (
-        [Parameter(Position = 0, ParameterSetName = "")]
         [switch] $Enbale,
-        [Parameter(Position = 0, ParameterSetName = "")]
         [switch] $Disbale
     )
     $SetttingPath = $([Environment]::GetFolderPath('LocalApplicationData')) + "\LINE\Data\plugin\LineMediaPlayer\setting.ini"
@@ -24,4 +21,4 @@ function OpenGLDetected {
     } else {
         Write-Host "當前狀態："$Content[1]
     }
-} # OpenGLDetected
+} # OpenGLDetected -Enbale
