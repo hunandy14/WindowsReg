@@ -77,8 +77,8 @@ function VM_Setting {
     reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /ve /t REG_SZ /f
     # 關閉 UAC
     irm bit.ly/3Gca80R|iex; SetUAC -Set:0
-    # 設定成手動更新
-    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
+    # 關閉更新
+    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
     # 關閉防毒
     irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
 }
@@ -91,17 +91,18 @@ function VM_Setting2 {
     
     # 關閉 UAC
     irm bit.ly/3Gca80R|iex; SetUAC -Set:0
-    # 設定成手動更新
+    # 關閉更新
     irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
     # 關閉防毒
     irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
     
     
-    Set-ExecutionPolicy Bypass -S:Process -F
-    irm chocolatey.org/install.ps1|iex
+    Set-ExecutionPolicy Bypass -S:Process -F; irm chocolatey.org/install.ps1|iex
     choco install -y 7zip
-    choco install -y git --params "/NoShellIntegration" vscode
-    choco install -y powershell-core
+    choco install -y git --params "/NoShellIntegration"
+    choco install -y git vscode
+    # choco install -y powershell-core
+    # choco install -y powertoys
 }
 
 function Soft {
