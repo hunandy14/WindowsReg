@@ -16,5 +16,5 @@ function InitialKeyboard {
     )
     if ($NumLock) { $Value=2 }
     $UserSID  = (Get-LocalUser -Name:$env:USERNAME).sid.value
-    Write-Host reg add "HKEY_USERS\$UserSID\Control Panel\Keyboard" /v "InitialKeyboardIndicators" /t REG_SZ /d $Value /f
+    reg add "HKEY_USERS\$UserSID\Control Panel\Keyboard" /v "InitialKeyboardIndicators" /t REG_SZ /d $Value /f
 } # InitialKeyboard -NumLock
