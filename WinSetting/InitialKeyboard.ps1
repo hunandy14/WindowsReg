@@ -10,6 +10,11 @@
     # 7: 開啟全部鎖定
 ###################################################################################################
 function InitialKeyboard {
+    param (
+        [int64] $Value = 0,
+        [switch] $NumLock
+    )
+    if ($NumLock) { $Value=2 }
     $UserSID  = (Get-LocalUser -Name:$env:USERNAME).sid.value
-    reg add "HKEY_USERS\$UserSID\Control Panel\Keyboard" /v "DevicePasswordLessBuildVersion" /t REG_SZ /d 2 /f
-} # InitialKeyboard
+    reg add "HKEY_USERS\$UserSID\Control Panel\Keyboard" /v "DevicePasswordLessBuildVersion" /t REG_SZ /d $Value /f
+} # InitialKeyboard -NumLock
