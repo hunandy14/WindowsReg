@@ -121,3 +121,8 @@ irm bit.ly/3IgtUJU|iex; DeviceDriverUpdate
 ```
 irm bit.ly/35EVGlc|iex; GpeditEbable
 ```
+
+### 不用輸入密碼自動登入Windows桌面
+```
+irm bit.ly/3tkkqIn|iex; netplwiz
+```
