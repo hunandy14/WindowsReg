@@ -126,3 +126,8 @@ irm bit.ly/35EVGlc|iex; GpeditEbable
 ```
 irm bit.ly/3tkkqIn|iex; netplwiz
 ```
+
+### 登入Windows自動亮燈
+```
+irm bit.ly/39iuwmj|iex; InitialKeyboard -NumLock
+```

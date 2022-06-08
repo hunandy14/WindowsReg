@@ -50,7 +50,7 @@ function Setting_User {
 
     # NumLock
     $UserSID  = (Get-LocalUser $env:USERNAME).sid.value
-    reg add "HKEY_USERS\$UserSID\Control Panel\Keyboard" /v "DevicePasswordLessBuildVersion" /t REG_SZ /d 2 /f
+    reg add "HKEY_USERS\$UserSID\Control Panel\Keyboard" /v "InitialKeyboardIndicators" /t REG_SZ /d 2 /f
     
     # 新注音預設為英文狀態
     reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\IME\15.0\IMETC" /v "Default Input Mode" /t REG_SZ /d "0x00000001" /f
