@@ -1,10 +1,9 @@
 # 預設電源方案
-function __LoadSetting__ {
-    [string] $Powercfg_PowerSaver      = 'a1841308-3541-4fab-bc81-f71556f20b4a'
-    [string] $Powercfg_Balanced        = '381b4222-f694-41f0-9685-ff5bb260df2e'
-    [string] $Powercfg_HighPerformance = '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c'
-    [string] $Powercfg_Current         = "scheme_current"
-} __LoadSetting__
+[string] $Powercfg_PowerSaver      = 'a1841308-3541-4fab-bc81-f71556f20b4a'
+[string] $Powercfg_Balanced        = '381b4222-f694-41f0-9685-ff5bb260df2e'
+[string] $Powercfg_HighPerformance = '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c'
+[string] $Powercfg_Current         = "scheme_current"
+    
 function GET-PowercfgScheme {
     powercfg.exe /l
 }
