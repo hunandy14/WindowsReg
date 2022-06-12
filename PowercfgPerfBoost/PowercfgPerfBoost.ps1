@@ -1,9 +1,9 @@
 # 預設電源方案
 function __LoadSetting__ {
-    $Powercfg_PowerSaver      = 'a1841308-3541-4fab-bc81-f71556f20b4a'
-    $Powercfg_Balanced        = '381b4222-f694-41f0-9685-ff5bb260df2e'
-    $Powercfg_HighPerformance = '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c'
-    $Powercfg_Current         = "scheme_current"
+    [string] $Powercfg_PowerSaver      = 'a1841308-3541-4fab-bc81-f71556f20b4a'
+    [string] $Powercfg_Balanced        = '381b4222-f694-41f0-9685-ff5bb260df2e'
+    [string] $Powercfg_HighPerformance = '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c'
+    [string] $Powercfg_Current         = "scheme_current"
 } __LoadSetting__
 function GET-PowercfgScheme {
     powercfg.exe /l
@@ -13,6 +13,7 @@ function CopyScheme {
     param (
         [Parameter(Position = 0, ParameterSetName = "", Mandatory)]
         [string] $Name,
+        [Parameter(Position = 1, ParameterSetName = "")]
         [string] $GUID,
         [switch] $Apply
     )
@@ -25,7 +26,10 @@ function CopyScheme {
     # 套用方案
     if ($Apply) { Powercfg -setactive $GUID }
     return $GUID
-} # CopyScheme "電池保護" -Apply
+}
+# CopyScheme "電池保護" $Powercfg_Balanced -Apply | Out-Null
+# CopyScheme "電池保護" -Apply | Out-Null
+
 
 function Set-PerfBoost {
     param (
@@ -56,6 +60,7 @@ function Set-PerfBoost {
         if ($Apply) { Powercfg -setactive $GUID }
     }
 }
+
 
 function PowercfgPerfBoost {
     Set-PerfBoost -Value:0 -GUID:(CopyScheme "電池保護") -Apply
