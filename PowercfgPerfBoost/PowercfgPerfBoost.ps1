@@ -62,8 +62,6 @@ function Set-PerfBoost {
         if ($Apply) { Powercfg -setactive $GUID }
     }
 }
-
-
-function PowercfgPerfBoost {
-    Set-PerfBoost -Value:0 -GUID:(CopyScheme "電池保護") -Apply
-} # PowercfgPerfBoost
+# Set-PerfBoost -Value:0 -Apply
+# Set-PerfBoost -Value:0 -GUID:(CopyScheme "電池保護") -Apply
+# Set-PerfBoost -Value:0 -GUID:(CopyScheme "電池保護" $Powercfg_Balanced) -Apply
