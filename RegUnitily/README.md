@@ -14,6 +14,15 @@ $regItem  = "DevicePasswordLessBuildVersion"
 $regType  = "REG_DWORD"
 $regValue = 0
 irm bit.ly/3Nxp11X|iex; RegAdd $regPath $regItem $regType $RegValue
+```
 
-irm bit.ly/3Nxp11X|iex; RegAdd -OnlyOutCmd $regPath $regItem $regType $RegValue
+輸出命令
+```ps1
+function RegUnitily {
+    $regPath  = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\PasswordLess\Device"
+    $regItem  = "DevicePasswordLessBuildVersion"
+    $regType  = "REG_DWORD"
+    $regValue = 0
+    irm bit.ly/3Nxp11X|iex; RegAdd -OnlyOutCmd $regPath $regItem $regType $RegValue
+} RegUnitily
 ```
