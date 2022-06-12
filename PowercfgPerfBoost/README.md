@@ -1,6 +1,8 @@
 筆電降溫，關閉CPU自動超頻
 ===
 
+![](img/Cover.png)
+
 關閉當前方案的自動超頻
 ```ps1
 irm bit.ly/3MHZKkz|iex; Set-PerfBoost 0 -Apply
