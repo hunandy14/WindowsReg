@@ -33,7 +33,9 @@ function CopyScheme {
 
 function Set-PerfBoost {
     param (
+        [Parameter(Position = 0, ParameterSetName = "")]
         [string] $Value,
+        [Parameter(Position = 1, ParameterSetName = "")]
         [string] $GUID,
         [switch] $Apply
     )
