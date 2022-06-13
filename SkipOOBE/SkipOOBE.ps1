@@ -5,7 +5,7 @@ function SkipOOBE {
     # 檢測
     if (!$UserName) { $UserName = 'User' }
     # 新增使用者
-    New-LocalUser -Name:$UserName -Password:(New-Object System.Security.SecureString)
+    New-LocalUser -Name:$UserName -Password:(New-Object System.Security.SecureString) | Out-Null
     Add-LocalGroupMember Users $UserName
     Add-LocalGroupMember Administrators $UserName
     # 略過OOBE
