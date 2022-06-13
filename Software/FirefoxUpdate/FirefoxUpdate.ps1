@@ -1,10 +1,11 @@
 function FirefoxUpdate {
     param (
+        [string] $FirfoxPath,
         [switch] $Dislable,
         [switch] $Enable
     )
     $FileName = "policies.json"
-    $FirfoxPath = "C:\Program Files\Mozilla Firefox"
+    if (!$FirfoxPath) { $FirfoxPath = "C:\Program Files\Mozilla Firefox" }
     $File = "$FirfoxPath\distribution\$FileName"
     
     Try { [io.file]::OpenWrite("$FirfoxPath\update-settings.ini").close() }
