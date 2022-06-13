@@ -1,22 +1,21 @@
 # ==================================================================================================
 # 系統設定::通常設定
 function Setting_System{
-        # UAC 不要把桌面變黑
-        irm bit.ly/3Gca80R|iex; SetUAC -Set:1
-        # 設定成手動更新
-        irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
-        # 關閉及時掃描
-        irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
+    # UAC 不要把桌面變黑
+    irm bit.ly/3Gca80R|iex; SetUAC -Set:1
+    # 設定成手動更新
+    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
+    # 關閉及時掃描
+    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
 }
 # 系統設定::測試用虛擬機設定
 function Setting_System2{
     # 關閉 UAC
     irm bit.ly/3Gca80R|iex; SetUAC -Set:0
     # 設定成手動更新
-    # irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
-    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
+    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
     # 關閉防毒
-    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -Disable
+    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
 }
 # 使用者設定::通常
 function Setting_User {
@@ -78,28 +77,13 @@ function VM_Setting {
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 1 /f
     # Win111自動展開右鍵
     reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /ve /t REG_SZ /f
-    # 關閉 UAC
-    irm bit.ly/3Gca80R|iex; SetUAC -Set:0
-    # 關閉更新
-    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
-    # 關閉防毒
-    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
+    # 系統設定
+    Setting_System2
 }
 function VM_Setting2 {
-    Setting_User
-    # 檔案管理員預設打開(1本機 2快速存取)
-    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 1 /f
-    # Win111自動展開右鍵
-    reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /ve /t REG_SZ /f
-    
-    # 關閉 UAC
-    irm bit.ly/3Gca80R|iex; SetUAC -Set:0
-    # 關閉更新
-    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
-    # 關閉防毒
-    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
-    
-    
+    # 虛擬機設定
+    VM_Setting
+    # 安裝軟體
     Set-ExecutionPolicy Bypass -S:Process -F; irm chocolatey.org/install.ps1|iex
     choco install -y 7zip
     choco install -y git --params "/NoShellIntegration"
