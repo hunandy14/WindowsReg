@@ -17,7 +17,7 @@ function FirefoxUpdate {
     `}
 `}"
         if ( Test-Path $File ) { Move-Item $File "$File.backup2" -Force }
-        New-Item $File -ItemType:File -Force -ErrorAction:Stop
+        New-Item $File -ItemType:File -Force -ErrorAction:Stop | Out-Null
         [System.IO.File]::WriteAllText($File, $Config)
         Write-Host "追加設定檔：" -NoNewline
         Write-Host $File -ForegroundColor:Yellow
