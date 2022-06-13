@@ -19,6 +19,8 @@ function InitialKeyboard {
     if ($CapsLock  ) { $Value=$Value+1 }
     if ($NumLock   ) { $Value=$Value+2 }
     if ($ScrollLock) { $Value=$Value+4 }
-    $UserSID  = (Get-LocalUser -Name:$env:USERNAME).sid.value
-    reg add "HKEY_USERS\$UserSID\Control Panel\Keyboard" /v "InitialKeyboardIndicators" /t REG_SZ /d $Value /f
+    if (Test-Path env:USERNAME) {
+        $UserSID  = (Get-LocalUser $env:USERNAME).sid.value
+        reg add "HKEY_USERS\$UserSID\Control Panel\Keyboard" /v "InitialKeyboardIndicators" /t REG_SZ /d 2 /f
+    } reg add "HKEY_USERS\.DEFAULT\Control Panel\Keyboard" /v "InitialKeyboardIndicators" /t REG_SZ /d 2 /f
 } # InitialKeyboard -NumLock
