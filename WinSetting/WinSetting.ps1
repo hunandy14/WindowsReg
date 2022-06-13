@@ -49,7 +49,7 @@ function Setting_User {
     if ((Get-Process -ProcessName:explorer)) { Stop-Process -ProcessName:explorer }
 
     # NumLock
-    if (Test-Path env:USERNAME) {
+    if (env:USERNAME -ne 'SYSTEM') {
         $UserSID  = (Get-LocalUser $env:USERNAME).sid.value
         reg add "HKEY_USERS\$UserSID\Control Panel\Keyboard" /v "InitialKeyboardIndicators" /t REG_SZ /d 2 /f
     } reg add "HKEY_USERS\.DEFAULT\Control Panel\Keyboard" /v "InitialKeyboardIndicators" /t REG_SZ /d 2 /f
