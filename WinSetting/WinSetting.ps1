@@ -46,7 +46,7 @@ function Setting_User {
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{5399E694-6CE5-4D6C-8FCE-1D8870FDCBA0}" /t REG_DWORD /d 1 /f
     # 桌面圖示 - 資源回收桶
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{645FF040-5081-101B-9F08-00AA002F954E}" /t REG_DWORD /d 0 /f
-    if ((Get-Process -ProcessName:explorer)) { Stop-Process -ProcessName:explorer }
+    if ((Get-Process -ProcessName:explorer -ErrorAction:SilentlyContinue)) { Stop-  -ProcessName:explorer }
 
     # NumLock
     if (env:USERNAME -ne 'SYSTEM') {
