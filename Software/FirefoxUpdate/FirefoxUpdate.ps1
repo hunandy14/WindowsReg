@@ -6,7 +6,9 @@ function FirefoxUpdate {
     )
     $FileName = "policies.json"
     if (!$FirfoxPath) { $FirfoxPath = "C:\Program Files\Mozilla Firefox" }
+    if (!(Test-Path "$FirfoxPath\firefox.exe")) { Write-Host "輸入的路徑有誤"; return }
     $File = "$FirfoxPath\distribution\$FileName"
+    
     
     Try { [io.file]::OpenWrite("$FirfoxPath\update-settings.ini").close() }
     catch { Write-Warning "[權限不足]::需要管理員權限或開放火狐資料夾存取權限給當前使用者。"; return }
