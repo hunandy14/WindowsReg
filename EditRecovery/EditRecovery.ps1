@@ -1,11 +1,11 @@
 
 # 獲取RE分區
 function GetRecoveryPartition {
-    if (((reagentc /info)[3]).IndexOf('Enabled') -eq -1) {
+    [string] $RecoveryPath = ((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
+    if ($RecoveryPath -eq '') {
         Write-Host "RE分區尚未啟用" -ForegroundColor:Yellow
         return
     }
-    $RecoveryPath = ((reagentc /info)[4])
     $DiskNum = (([regex]('\\harddisk([0-9]+)\\')).Matches($RecoveryPath)).Groups[1].Value
     $PartNum = (([regex]('\\partition([0-9]+)\\')).Matches($RecoveryPath)).Groups[1].Value
     return @($DiskNum, $PartNum)
