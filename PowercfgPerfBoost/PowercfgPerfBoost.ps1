@@ -31,10 +31,15 @@ function CopyScheme {
 
 
 function Set-PerfBoost {
+    [CmdletBinding(DefaultParameterSetName = "B")]
     param (
         [Parameter(Position = 0, ParameterSetName = "")]
         [string] $Value,
-        [Parameter(Position = 1, ParameterSetName = "")]
+        [Parameter(ParameterSetName = "A")]
+        [switch] $CopyCurrent,
+        [Parameter(Position = 1, ParameterSetName = "A")]
+        [string] $Name,
+        [Parameter(ParameterSetName = "B")]
         [string] $GUID,
         [switch] $Apply
     )
@@ -54,13 +59,31 @@ function Set-PerfBoost {
         Write-Host '  4: 有效率地積極'
         Write-Host ''
     } else {
-        if (!$GUID) { $GUID = $Powercfg_Current }
+        if (!$GUID) {
+            $GUID = $Powercfg_Current
+            if (!$CopyCurrent) { $Apply = $true }
+        }
+
+        if ($CopyCurrent) {
+            if (!$Name) { $Name = "關閉超頻" } 
+            $curScheme = (powercfg /query scheme_current)[0]
+            $length = $curScheme.Length
+            $index = $curScheme.IndexOf(' GUID: ')+ (7+36+2+1)
+            $Name = $curScheme.Substring($index, $length-$index-1)+" ($Name)"
+            # 設置參數
+            $GUID = (CopyScheme $Name)
+            $Apply = $true
+        }
+        # 執行
         (reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\be337238-0d82-4146-a960-4f3749d470c7" /v Attributes /t REG_DWORD /d 2 /f) | Out-Null
         Powercfg -setacvalueindex $GUID sub_processor PERFBOOSTMODE $Value
         Powercfg -setdcvalueindex $GUID sub_processor PERFBOOSTMODE $Value
+        # 套用
         if ($Apply) { Powercfg -setactive $GUID }
     }
 }
-# Set-PerfBoost -Value:0 -Apply
+# Set-PerfBoost -Value:0
+# Set-PerfBoost -Value:0 -CopyCurrent
+# Set-PerfBoost -Value:0 -CopyCurrent "電池保護"
 # Set-PerfBoost -Value:0 -GUID:(CopyScheme "電池保護") -Apply
 # Set-PerfBoost -Value:0 -GUID:(CopyScheme "電池保護" $Powercfg_Balanced) -Apply
