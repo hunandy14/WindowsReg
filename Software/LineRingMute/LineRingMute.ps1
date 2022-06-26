@@ -5,7 +5,7 @@ function LineRingMute {
     )
     # 檔案
     $MuteRing = "https://github.com/hunandy14/WindowsReg/raw/master/Software/LineRingMute/wav/VoipRing.wav"
-    $File = "$($env:HOMEPATH)\AppData\Local\LineCall\Data\sound\VoipRing.wav"
+    $File = "C:$($env:HOMEPATH)\AppData\Local\LineCall\Data\sound\VoipRing.wav"
     # 設定權限
     $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule("$($env:UserName)","Write","Deny")
     $ACL = Get-ACL $File
