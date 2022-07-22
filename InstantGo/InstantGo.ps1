@@ -1,11 +1,12 @@
 function DisableInstantGo {
     param (
         [Parameter(Position = 0, ParameterSetName = "Recovery")]
-        [switch] $Recovery
+        [switch] $Recovery,
+        [switch] $Force
     )
     # 檢查
     $IsLaptop = ((Get-WmiObject -Class Win32_ComputerSystem -Property PCSystemType).PCSystemType) -eq 2
-    if (!$IsLaptop) { Write-Host "Error:: This PC is not Laptop." return }
+    if (!$IsLaptop -and !$Force) { Write-Host "Error:: This PC is not Laptop."; return }
     
     # 主功能
     $VersionFlag = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").DisplayVersion[0]
@@ -38,12 +39,13 @@ function InstantGo {
         [Parameter(Position = 0, ParameterSetName = "Enable", Mandatory)]
         [switch] $Enable,
         [Parameter(Position = 0, ParameterSetName = "Info", Mandatory)]
-        [switch] $Info
+        [switch] $Info,
+        [switch] $Force
     )
     if ($Disable) {
-        DisableInstantGo
+        DisableInstantGo -Force:$Force
     } elseif ($Enable) {
-        DisableInstantGo -Recovery
+        DisableInstantGo -Recovery -Force:$Force
     } elseif ($Info) {
         Powercfg.exe -a
     }
