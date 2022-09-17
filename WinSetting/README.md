@@ -15,6 +15,9 @@ irm bit.ly/3GYlNBo|iex; VM_Setting
 
 # 設定與軟體
 irm bit.ly/3GYlNBo|iex; VM_Setting2
+
+# 虛擬機瀏覽器顯示異常問題
+edge://flags/#use-angle
 ```
 
 啟用KMS伺服器
