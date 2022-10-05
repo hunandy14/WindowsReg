@@ -6,13 +6,13 @@ Windows更新相關設置
 
 ```ps1
 # 設定更新為手動
-irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
+irm bit.ly/StopWinUpdate|iex; AutomaticUpdates -Manual
 
 # 關閉自動更新
-irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
+irm bit.ly/StopWinUpdate|iex; AutomaticUpdates -Stop
 
 # 恢復自動更新
-irm bit.ly/3GAuGRF|iex; AutomaticUpdates
+irm bit.ly/StopWinUpdate|iex; AutomaticUpdates
 ```
 
 
@@ -21,11 +21,11 @@ irm bit.ly/3GAuGRF|iex; AutomaticUpdates
 
 ```ps1
 # 鎖定當前 Windows 版本
-irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Current
+irm bit.ly/StopWinUpdate|iex; LockWindowsVersion -Current
 
 # 指定 Windows 版本
-irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Version:21H2
+irm bit.ly/StopWinUpdate|iex; LockWindowsVersion -Version:21H2
 
 # 復原解鎖(之後想更新的話)
-irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Unlock
+irm bit.ly/StopWinUpdate|iex; LockWindowsVersion -Unlock
 ```
