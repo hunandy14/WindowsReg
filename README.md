@@ -11,32 +11,32 @@ https://github.com/hunandy14/WindowsReg/issues
 
 ```
 # 改為手動
-irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
+irm bit.ly/StopWinUpdate|iex; AutomaticUpdates -Manual
 
 # 停用更新
-irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
+irm bit.ly/StopWinUpdate|iex; AutomaticUpdates -Stop
 
 # 恢復預設
-irm bit.ly/3GAuGRF|iex; AutomaticUpdates
+irm bit.ly/StopWinUpdate|iex; AutomaticUpdates
 ```
 
 ```
 # 鎖定當前 Windows 版本
-irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Current
+irm bit.ly/StopWinUpdate|iex; LockWindowsVersion -Current
 
 # 鎖定指定 Windows 版本
-irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Version:21H2
+irm bit.ly/StopWinUpdate|iex; LockWindowsVersion -Version:21H2
 
 # 解除鎖定
-irm bit.ly/3GAuGRF|iex; LockWindowsVersion -Unlock
+irm bit.ly/StopWinUpdate|iex; LockWindowsVersion -Unlock
 ```
 
 ```
 # 解除升級 Windows11 限制
-irm bit.ly/3GAuGRF|iex; Win11_Update -Unlock
+irm bit.ly/StopWinUpdate|iex; Win11_Update -Unlock
 
 # 還原升級 Windows11 限制
-irm bit.ly/3GAuGRF|iex; Win11_Update -Recovery
+irm bit.ly/StopWinUpdate|iex; Win11_Update -Recovery
 ```
 
 ```
