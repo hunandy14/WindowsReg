@@ -88,8 +88,8 @@ function Set-CursorPosition {
 # 保持螢幕亮著 (https://gist.github.com/jamesfreeman959/231b068c3d1ed6557675f21c0e346a9c)
 function KeepScrOn {
     Param(
-        [UInt64] $Time=59, 
-        [UInt64] $Offset=1, 
+        [UInt64] $Time = 59, 
+        [UInt64] $Offset = 1, 
         [Switch] $Debug
     )
     if ($Debug) {$Offset=100}
@@ -112,5 +112,22 @@ function KeepScrOn {
     }
 } # KeepScrOn 1 -Debug
 
+# 按鍵式的 (有些系統沒法靠滑鼠保持)
+function KeepScrOn2 {
+    param (
+        [UInt64] $Time = 899
+    )
+    [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+    $WShell = New-Object -ComObject WScript.Shell
+    # 起始檢測
+    foreach($item in (1..4)){ $WShell.SendKeys('{NUMLOCK}'); Start-Sleep -Milliseconds 100; }
+    # 開始循環
+    while (1) {
+        Start-Sleep $Time
+        $WShell.SendKeys('{NUMLOCK}')
+        Start-Sleep -Milliseconds 0.01
+        $WShell.SendKeys('{NUMLOCK}')
+    }
+} # KeepScrOn2
 
 ###################################################################################################
