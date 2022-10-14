@@ -115,18 +115,19 @@ function KeepScrOn {
 # 按鍵式的 (有些系統沒法靠滑鼠保持)
 function KeepScrOn2 {
     param (
-        [UInt64] $Time = 899
+        [UInt64] $Time = 899,
+        [String] $Key = '{NUMLOCK}'
     )
     [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
     $WShell = New-Object -ComObject WScript.Shell
     # 起始檢測
-    foreach($item in (1..4)){ $WShell.SendKeys('{NUMLOCK}'); Start-Sleep -Milliseconds 100; }
+    foreach($item in (1..4)){ $WShell.SendKeys($Key); Start-Sleep -Milliseconds 100; }
     # 開始循環
     while (1) {
         Start-Sleep $Time
-        $WShell.SendKeys('{NUMLOCK}')
+        $WShell.SendKeys($Key)
         Start-Sleep -Milliseconds 0.01
-        $WShell.SendKeys('{NUMLOCK}')
+        $WShell.SendKeys($Key)
     }
 } # KeepScrOn2
 
