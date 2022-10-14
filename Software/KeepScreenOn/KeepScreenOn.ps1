@@ -6,11 +6,11 @@ function KeepScrOn ([UInt64] $Time=59, $Offset = 1, [Switch] $Debug) {
     [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
     while (1) {
         $Pos = [System.Windows.Forms.Cursor]::Position
-        [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point((($Pos.X)+$offset), $Pos.Y)
+        [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point((($Pos.X)+$Offset), $Pos.Y)
         if($Pos -eq [System.Windows.Forms.Cursor]::Position){
-            [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point((($Pos.X)-$offset), $Pos.Y)
+            [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point((($Pos.X)-$Offset), $Pos.Y)
         }
-        if ($Debug) { Start-Sleep -Seconds 0.01 }
+        if ($Debug) { Start-Sleep -Seconds 0.1 }
         [System.Windows.Forms.Cursor]::Position = $Pos
         Start-Sleep -Seconds $Time
     }
