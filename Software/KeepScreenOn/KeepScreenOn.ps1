@@ -69,17 +69,17 @@ function Get-CursorPosition {
 Add-Type -MemberDefinition '[DllImport("user32.dll")] public static extern void mouse_event(int flags, int dx, int dy, int cButtons, int info);' -Name U32 -Namespace W;
 function Set-CursorPosition {
     param (
-        [Object] $Object,
+        [double] $X,
+        [double] $Y,
         [switch] $Rate
     )
-    
     # 正規化
     if (!$Rate) {
-        $Object.X = $Object.X/($ScreenInfo.Width) 
-        $Object.Y = $Object.Y/($ScreenInfo.Height)
+        $X = $X/($ScreenInfo.Width) 
+        $Y = $Y/($ScreenInfo.Height)
     }
     # 設定左標
-    [W.U32]::mouse_event(0x8000 -bor 0x001, $Object.X*65535, $Object.Y*65535, 0, 0);
+    [W.U32]::mouse_event(0x8000 -bor 0x001, $X*65535, $Y*65535, 0, 0);
 } # Set-CursorPosition (Get-CursorPosition 100); sleep 1; Set-CursorPosition (Get-CursorPosition -100)
 
 
@@ -94,19 +94,19 @@ function KeepScrOn {
     if ($Debug) {$Offset=100}
     $Msg = "Running KeepScrOn... (Press Ctrl+C to end.)"
     Write-Host "[$((Get-Date).Tostring("yyyy/MM/dd HH:mm:ss.fff"))] $Msg"
-    [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
-    $wsh = New-Object -ComObject WScript.Shell
-    $wsh.SendKeys('{NUMLOCK}')
 
-    return 
     while (1) {
-        $Pos = [System.Windows.Forms.Cursor]::Position
-        [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point((($Pos.X)+$Offset), $Pos.Y)
-        if($Pos -eq [System.Windows.Forms.Cursor]::Position){
-            [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point((($Pos.X)-$Offset), $Pos.Y)
-        }
+        # 讀取當前位置
+        $Pos = (Get-CursorPosition)
+        # 向右偏移
+        Set-CursorPosition ($Pos.X+$Offset) ($Pos.Y)
+        # 檢測是否有偏移，沒偏移就是滑鼠在邊界
+        if(($Pos.X) -eq ((Get-CursorPosition).X)){ Set-CursorPosition ($Pos.X-$Offset) ($Pos.Y) } 
+        # 偵錯的時候向右偏移延遲1秒比較看的出來
         if ($Debug) { Start-Sleep -Seconds 1 }
-        [System.Windows.Forms.Cursor]::Position = $Pos
+        # 偏移回原本的位置
+        Set-CursorPosition ($Pos.X) ($Pos.Y)
+        # 每隔多久偏移一次
         Start-Sleep -Seconds $Time
     }
 } # KeepScrOn 1 -Debug
