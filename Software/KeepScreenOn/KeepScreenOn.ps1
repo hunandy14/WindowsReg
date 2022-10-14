@@ -1,3 +1,4 @@
+###################################################################################################
 # 獲取螢幕解析度
 $__GetScreenInfoFlag__
 function GetScreenInfo {
@@ -83,7 +84,7 @@ function Set-CursorPosition {
 } # Set-CursorPosition (Get-CursorPosition 100); sleep 1; Set-CursorPosition (Get-CursorPosition -100)
 
 
-
+###################################################################################################
 # 保持螢幕亮著 (https://gist.github.com/jamesfreeman959/231b068c3d1ed6557675f21c0e346a9c)
 function KeepScrOn {
     Param(
@@ -94,7 +95,7 @@ function KeepScrOn {
     if ($Debug) {$Offset=100}
     $Msg = "Running KeepScrOn... (Press Ctrl+C to end.)"
     Write-Host "[$((Get-Date).Tostring("yyyy/MM/dd HH:mm:ss.fff"))] $Msg"
-
+    # 開始循環
     while (1) {
         # 讀取當前位置
         $Pos = (Get-CursorPosition)
@@ -112,10 +113,4 @@ function KeepScrOn {
 } # KeepScrOn 1 -Debug
 
 
-
-
-
-
-# irm bit.ly/Import-Param|iex
-# $StWh=(StopWatch -Start)
-# ($StWh|StopWatch -Split)
+###################################################################################################
