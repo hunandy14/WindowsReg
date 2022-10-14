@@ -118,8 +118,12 @@ function KeepScrOn2 {
         [UInt64] $Time = 899,
         [String] $Key = '{NUMLOCK}'
     )
+    # 加載函數
     [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
     $WShell = New-Object -ComObject WScript.Shell
+    # 提示訊息
+    $Msg = "Running KeepScrOn... (Press Ctrl+C to end.)"
+    Write-Host "[$((Get-Date).Tostring("yyyy/MM/dd HH:mm:ss.fff"))] $Msg"
     # 起始檢測
     foreach($item in (1..4)){ $WShell.SendKeys($Key); Start-Sleep -Milliseconds 100; }
     # 開始循環
