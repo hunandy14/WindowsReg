@@ -144,14 +144,18 @@ function Install-App {
     )
     # 設定參數
     $FileName = "$Path\KeepScreenOn\KeepScreenOn.ps1"
+    $EncCMD = "[Text.Encoding]::GetEncoding('UTF-8')"
+    $Enc = $EncCMD|Invoke-Expression
     # 下載
     if (!(Test-Path $Path)) { (New-Item $FileName -ItemType:File -Force)|Out-Null }
-    (Invoke-RestMethod bit.ly/KeepScrOn)|Out-File $FileName
+    [IO.File]::AppendAllText($FileName, (Invoke-RestMethod bit.ly/KeepScrOn), $Enc)
     # 建立捷徑
-    $Powershell = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
-    [string] $SourceExe       = $Powershell
-    [string] $Arguments       = "-NoP -EX bypass -C `".'$FileName'; KeepScrOn -Time:59`""
+    [string] $SourceExe       = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+    [string] $Arguments       = "KeepScrOn -Time:59"
     [string] $DestinationPath = [Environment]::GetFolderPath("Desktop") + "\Keep.lnk"
+    # 處理命令
+    $Arguments = "-NoP -C `"[Io.File]::ReadAllText('$FileName', $EncCMD)|iex; $Arguments`""
+    # 處理捷徑
     $WshShell = New-Object -comObject WScript.Shell
     $Shortcut = $WshShell.CreateShortcut($DestinationPath)
     $Shortcut.TargetPath = $SourceExe
