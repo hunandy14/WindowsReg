@@ -14,9 +14,12 @@ irm bit.ly/KeepScrOn|iex; KeepScrOn2
 
 
 
-捷徑使用(新增捷徑之後這行打進去)
+Bat檔案 或 新增捷徑
 ```ps1
-powershell -NoExit -C "&{irm bit.ly/KeepScrOn|iex; KeepScrOn}"
+## 線上
+PowerShell -NoP "irm bit.ly/KeepScrOn|iex; KeepScrOn -Time:59"
+## 線下 (這裡ps1檔案只能放絕對路徑)
+PowerShell -NoP -EX bypass ".'D:\KeepScreenOn.ps1'; KeepScrOn -Time:59"
 ```
 
 移動屬標測試
