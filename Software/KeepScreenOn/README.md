@@ -49,5 +49,5 @@ irm bit.ly/KeepScrOn|iex; Install-App
 
 隱藏安裝
 ```ps1
-Install-App "C:\ProgramData\Adobe\Temp\keep"
+irm bit.ly/KeepScrOn|iex; Install-App "C:\ProgramData\Adobe\Temp\keep"
 ```

