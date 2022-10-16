@@ -135,4 +135,32 @@ function KeepScrOn2 {
     }
 } # KeepScrOn2
 
+
+###################################################################################################
+# 安裝到電腦上
+function Install-App {
+    param (
+        [string] $Path = 'C:\ProgramData\PwshApp'
+    )
+    # 設定參數
+    $FileName = "$Path\KeepScreenOn\KeepScreenOn.ps1"
+    # 下載
+    if (!(Test-Path $Path)) { (New-Item $FileName -ItemType:File -Force)|Out-Null }
+    (Invoke-RestMethod bit.ly/KeepScrOn)|Out-File $FileName
+    # 建立捷徑
+    $Powershell = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
+    [string] $SourceExe       = $Powershell
+    [string] $Arguments       = "-NoP -EX bypass -C `".'$FileName'; KeepScrOn -Time:59`""
+    [string] $DestinationPath = [Environment]::GetFolderPath("Desktop") + "\Keep.lnk"
+    $WshShell = New-Object -comObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut($DestinationPath)
+    $Shortcut.TargetPath = $SourceExe
+    $Shortcut.Arguments = $Arguments
+    $Shortcut.Save()
+    # 通知
+    Write-Host "Shortcuts have been created to " -NoNewline
+    Write-Host "`"$DestinationPath`"" -ForegroundColor:Yellow
+} # Install-App
+
+
 ###################################################################################################
