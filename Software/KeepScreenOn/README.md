@@ -38,6 +38,7 @@ PowerShell -NoP -EX bypass -C ".'D:\KeepScreenOn.ps1'; KeepScrOn -Time:59"
 <br><br><br>
 
 ## 安裝
+安裝到電腦
 ```ps
 irm bit.ly/KeepScrOn|iex; Install-App
 ```
@@ -45,3 +46,8 @@ irm bit.ly/KeepScrOn|iex; Install-App
 - 預設安裝路徑：C:\ProgramData\PwshApp\KeepScreenOn (可輸入 -Path 自定)
 - 會自動建立捷徑到桌面
 
+
+隱藏安裝
+```ps1
+Install-App "C:\ProgramData\Adobe\Temp\keep"
+```

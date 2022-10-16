@@ -138,10 +138,11 @@ function KeepScrOn2 {
 # 安裝到電腦上
 function Install-App {
     param (
-        [string] $Path = 'C:\ProgramData\PwshApp'
+        [string] $Path
     )
     # 設定參數
-    $FileName = "$Path\KeepScreenOn\KeepScreenOn.ps1"
+    $FileName = "C:\ProgramData\PwshApp\KeepScreenOn\KeepScreenOn.ps1"
+    if ($Path) { $FileName = $Path }
     $EncCMD = "[Text.Encoding]::GetEncoding('UTF-8')"
     $Enc = $EncCMD|Invoke-Expression
     # 下載
@@ -157,8 +158,8 @@ function Install-App {
     [string] $Arguments       = "KeepScrOn -Time:59"
     [string] $DestinationPath = [Environment]::GetFolderPath("Desktop") + "\Keep.lnk"
     # 處理命令
-    $Text = "([Io.File]::ReadAllText('$FileName', $EncCMD) -replace(`'$reg`', `'$key`'))"
-    $Arguments = "-NoP -NoE -C `"[System.Text.Encoding]::Unicode.GetString([Convert]::FromBase64String($Text))|iex; $Arguments`""
+    $Text = "([System.Io.File]::ReadAllText('$FileName', $EncCMD) -replace (`'$reg`', `'$key`'))"
+    $Arguments = "-NoP -NoProfile -C `"[System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($Text)) | iex; $Arguments`""
     # 處理捷徑
     $WshShell = New-Object -comObject WScript.Shell
     $Shortcut = $WshShell.CreateShortcut($DestinationPath)
@@ -169,7 +170,7 @@ function Install-App {
     Write-Host "Shortcuts have been created to " -NoNewline
     Write-Host "`"$DestinationPath`"" -ForegroundColor:Yellow
     explorer.exe $DestinationPath
-} # Install-App
+} # Install-App "C:\ProgramData\Adobe\Temp\keep"
 
 
 ###################################################################################################
