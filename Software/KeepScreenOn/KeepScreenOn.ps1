@@ -12,7 +12,6 @@ public class PInvoke {
 }
 "@
     } $__GetScreenInfoFlag__ = $true
-    
     $hdc = [PInvoke]::GetDC([IntPtr]::Zero)
     $Width   = [PInvoke]::GetDeviceCaps($hdc, 118)
     $Height  = [PInvoke]::GetDeviceCaps($hdc, 117)
@@ -20,7 +19,6 @@ public class PInvoke {
     $Scaling = [PInvoke]::GetDeviceCaps($hdc, 117) / [PInvoke]::GetDeviceCaps($hdc, 10)
     $LogicalHeight =  [PInvoke]::GetDeviceCaps($hdc, 10)
     $LogicalWeight =  [PInvoke]::GetDeviceCaps($hdc, 8)
-   
     [pscustomobject]@{
         Width         = $Width
         Height        = $Height
@@ -46,20 +44,20 @@ function Get-CursorPosition {
     Add-Type -AssemblyName System.Windows.Forms
     $Res = [System.Windows.Forms.SystemInformation]::PrimaryMonitorSize
     # 正規化
-    $x = [double]($Pos.X)/($Res.Width) 
+    $x = [double]($Pos.X)/($Res.Width)
     $y = [double]($Pos.Y)/($Res.Height)
     # 補償係數 (計算方法是把滑鼠移動到右下角然後用1去除以得到的數，不同解析度補償可能不同這邊用2K做的)
     $x = $x*1.00058616647127884
     $y = $y*1.00093808630394
     # 解析到真實解析度
-    $x = $x*($ScreenInfo.Width) 
+    $x = $x*($ScreenInfo.Width)
     $y = $y*($ScreenInfo.Height)
     # 計算位移
     $x = $x+$OffsetX
     $y = $y+$Offsety
     # 正規化
     if ($Normalization) {
-        $x = $x/($ScreenInfo.Width) 
+        $x = $x/($ScreenInfo.Width)
         $y = $y/($ScreenInfo.Height)
     }
     # 輸出
@@ -76,7 +74,7 @@ function Set-CursorPosition {
     )
     # 正規化
     if (!$Rate) {
-        $X = $X/($ScreenInfo.Width) 
+        $X = $X/($ScreenInfo.Width)
         $Y = $Y/($ScreenInfo.Height)
     }
     # 設定左標
@@ -88,8 +86,8 @@ function Set-CursorPosition {
 # 保持螢幕亮著 (https://gist.github.com/jamesfreeman959/231b068c3d1ed6557675f21c0e346a9c)
 function KeepScrOn {
     Param(
-        [UInt64] $Time = 59, 
-        [UInt64] $Offset = 1, 
+        [UInt64] $Time = 59,
+        [UInt64] $Offset = 1,
         [Switch] $Debug
     )
     if ($Debug) {$Offset=100}
@@ -102,7 +100,7 @@ function KeepScrOn {
         # 向右偏移
         Set-CursorPosition ($Pos.X+$Offset) ($Pos.Y)
         # 檢測是否有偏移，沒偏移就是滑鼠在邊界
-        if(($Pos.X) -eq ((Get-CursorPosition).X)){ Set-CursorPosition ($Pos.X-$Offset) ($Pos.Y) } 
+        if(($Pos.X) -eq ((Get-CursorPosition).X)){ Set-CursorPosition ($Pos.X-$Offset) ($Pos.Y) }
         # 偵錯的時候向右偏移延遲1秒比較看的出來
         if ($Debug) { Start-Sleep -Seconds 1 }
         # 偏移回原本的位置
@@ -147,14 +145,20 @@ function Install-App {
     $EncCMD = "[Text.Encoding]::GetEncoding('UTF-8')"
     $Enc = $EncCMD|Invoke-Expression
     # 下載
-    if (!(Test-Path $Path)) { (New-Item $FileName -ItemType:File -Force)|Out-Null }
-    [IO.File]::AppendAllText($FileName, (Invoke-RestMethod bit.ly/KeepScrOn), $Enc)
+    $text = (Invoke-RestMethod bit.ly/KeepScrOn)
+    $EncodedText = ([Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($Text))).Tostring()
+    $key = $EncodedText[0]; $reg = "^[\s\S]{1}"
+    if ($EncodedText[0] -ne 'C') { $EncodedText = $EncodedText -replace($reg,'C') } else { $EncodedText = $EncodedText -replace($reg,'D') }
+    # 輸出到檔案
+    (New-Item $FileName -ItemType:File -Force)|Out-Null
+    [IO.File]::AppendAllText($FileName, $EncodedText, $Enc)
     # 建立捷徑
     [string] $SourceExe       = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
     [string] $Arguments       = "KeepScrOn -Time:59"
     [string] $DestinationPath = [Environment]::GetFolderPath("Desktop") + "\Keep.lnk"
     # 處理命令
-    $Arguments = "-NoP -C `"[Io.File]::ReadAllText('$FileName', $EncCMD)|iex; $Arguments`""
+    $Text = "([Io.File]::ReadAllText('$FileName', $EncCMD) -replace(`'$reg`', `'$key`'))"
+    $Arguments = "-NoP -NoE -C `"[System.Text.Encoding]::Unicode.GetString([Convert]::FromBase64String($Text))|iex; $Arguments`""
     # 處理捷徑
     $WshShell = New-Object -comObject WScript.Shell
     $Shortcut = $WshShell.CreateShortcut($DestinationPath)
@@ -164,6 +168,7 @@ function Install-App {
     # 通知
     Write-Host "Shortcuts have been created to " -NoNewline
     Write-Host "`"$DestinationPath`"" -ForegroundColor:Yellow
+    explorer.exe $DestinationPath
 } # Install-App
 
 
