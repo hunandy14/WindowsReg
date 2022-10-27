@@ -120,7 +120,7 @@ function KeepScrOn2 {
     [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
     $WShell = New-Object -ComObject WScript.Shell
     # 提示訊息
-    $Msg = "Running KeepScrOn... (Press Ctrl+C to end.)"
+    $Msg = "Running KeepScrOn_key... (Press Ctrl+C to end.)"
     Write-Host "[$((Get-Date).Tostring("yyyy/MM/dd HH:mm:ss.fff"))] $Msg"
     # 起始檢測
     foreach($item in (1..4)){ $WShell.SendKeys($Key); Start-Sleep -Milliseconds 100; }
@@ -138,7 +138,9 @@ function KeepScrOn2 {
 # 安裝到電腦上
 function Install-App {
     param (
-        [string] $Path
+        [string] $Path,
+        [string] $Argu="KeepScrOn -Time:59",
+        [string] $WindowsStyle="Mini"
     )
     # 設定參數
     $FileName = "C:\ProgramData\PwshApp\KeepScreenOn\KeepScreenOn.ps1"
@@ -155,11 +157,11 @@ function Install-App {
     [IO.File]::AppendAllText($FileName, $EncodedText, $Enc)
     # 建立捷徑
     [string] $SourceExe       = "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
-    [string] $Arguments       = "KeepScrOn -Time:59"
+    [string] $Arguments       = $Argu
     [string] $DestinationPath = [Environment]::GetFolderPath("Desktop") + "\Keep.lnk"
     # 處理命令
     $Text = "([System.Io.File]::ReadAllText('$FileName', $EncCMD) -replace (`'$reg`', `'$key`'))"
-    $Arguments = "-NoP -Window Mini -C `"[System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($Text)) | iex; $Arguments`""
+    $Arguments = "-NoP -Window $WindowsStyle -C `"[System.Text.Encoding]::Unicode.GetString([System.Convert]::FromBase64String($Text)) | iex; $Arguments`""
     # 處理捷徑
     $WshShell = New-Object -comObject WScript.Shell
     $Shortcut = $WshShell.CreateShortcut($DestinationPath)
