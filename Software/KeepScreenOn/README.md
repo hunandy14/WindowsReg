@@ -6,7 +6,7 @@
 irm bit.ly/KeepScrOn|iex; KeepScrOn
 ```
 
-## 快速使用2 (Num鍵抖動)
+## 快速使用2 (Num鍵閃爍)
 ```ps1
 irm bit.ly/KeepScrOn|iex; KeepScrOn2
 ```
@@ -18,7 +18,12 @@ irm bit.ly/KeepScrOn|iex; KeepScrOn2
 ## 其他
 移動屬標測試
 ```ps1
-irm bit.ly/KeepScrOn|iex; KeepScrOn 3 -Debug
+irm bit.ly/KeepScrOn|iex; KeepScrOn -Debug
+```
+
+鍵盤閃爍測試
+```ps1
+irm bit.ly/KeepScrOn|iex; KeepScrOn2 -Debug
 ```
 
 
@@ -47,8 +52,12 @@ irm bit.ly/KeepScrOn|iex; Install-App
 - 會自動建立捷徑到桌面
 
 
-隱藏安裝
+隱藏安裝1
 ```ps1
 irm bit.ly/KeepScrOn|iex; Install-App "C:\ProgramData\Adobe\Temp\keep"
-irm bit.ly/KeepScrOn|iex; Install-App -Path:"C:\ProgramData\Adobe\Temp\keep" -Argu:"KeepScrOn2 -Time:859" -WindowsStyle:"hidden"
+```
+
+隱藏安裝2
+```ps1
+irm bit.ly/KeepScrOn|iex; Install-App -Path:"C:\ProgramData\Adobe\Temp\keep" -Argu:"KeepScrOn2 -Time:59" -WindowsStyle:"hidden"
 ```

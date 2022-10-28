@@ -1,34 +1,19 @@
 ###################################################################################################
 # 獲取螢幕解析度
-$__GetScreenInfoFlag__
 function GetScreenInfo {
-    if (!$__GetScreenInfoFlag__) {
-    Add-Type -TypeDefinition:@"
-using System;
-using System.Runtime.InteropServices;
-public class PInvoke {
-    [DllImport("user32.dll")] public static extern IntPtr GetDC(IntPtr hwnd);
-    [DllImport("gdi32.dll")] public static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
-}
-"@
-    } $__GetScreenInfoFlag__ = $true
-    $hdc = [PInvoke]::GetDC([IntPtr]::Zero)
-    $Width   = [PInvoke]::GetDeviceCaps($hdc, 118)
-    $Height  = [PInvoke]::GetDeviceCaps($hdc, 117)
-    $Refresh = [PInvoke]::GetDeviceCaps($hdc, 116)
-    $Scaling = [PInvoke]::GetDeviceCaps($hdc, 117) / [PInvoke]::GetDeviceCaps($hdc, 10)
-    $LogicalHeight =  [PInvoke]::GetDeviceCaps($hdc, 10)
-    $LogicalWeight =  [PInvoke]::GetDeviceCaps($hdc, 8)
-    [pscustomobject]@{
-        Width         = $Width
-        Height        = $Height
-        Refresh       = $Refresh
-        # Scaling       = [Math]::Round($Scaling, 3)
-        Scaling       = $Scaling
-        LogicalHeight = $LogicalHeight
-        LogicalWeight = $LogicalWeight
+    if (!$__GetScreenInfoOnce__) { $Script:__GetScreenInfoOnce__ = $true
+        Add-Type -TypeDefinition:'using System; using System.Runtime.InteropServices; public class PInvoke { [DllImport("user32.dll")] public static extern IntPtr GetDC(IntPtr hwnd); [DllImport("gdi32.dll")] public static extern int GetDeviceCaps(IntPtr hdc, int nIndex); }'
     }
-} $ScreenInfo = GetScreenInfo
+    $hdc = [PInvoke]::GetDC([IntPtr]::Zero)
+    [pscustomobject]@{
+        Width         = [PInvoke]::GetDeviceCaps($hdc, 118)
+        Height        = [PInvoke]::GetDeviceCaps($hdc, 117)
+        Refresh       = [PInvoke]::GetDeviceCaps($hdc, 116)
+        Scaling       = [PInvoke]::GetDeviceCaps($hdc, 117) / [PInvoke]::GetDeviceCaps($hdc, 10)
+        LogicalWeight = [PInvoke]::GetDeviceCaps($hdc, 8)
+        LogicalHeight = [PInvoke]::GetDeviceCaps($hdc, 10)
+    }
+} $ScreenInfo = (GetScreenInfo) # ;$ScreenInfo
 
 # 獲取當前滑鼠座標
 function Get-CursorPosition {
@@ -37,18 +22,17 @@ function Get-CursorPosition {
         [int16] $OffsetY=0,
         [switch] $Normalization
     )
+    # 更新螢幕資訊
+    $ScreenInfo = (GetScreenInfo)
     # 獲取當前座標
     [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
     $Pos = [System.Windows.Forms.Cursor]::Position
-    # 獲取解析度
-    Add-Type -AssemblyName System.Windows.Forms
-    $Res = [System.Windows.Forms.SystemInformation]::PrimaryMonitorSize
-    # 正規化
-    $x = [double]($Pos.X)/($Res.Width)
-    $y = [double]($Pos.Y)/($Res.Height)
+    # 正規化[0~1]
+    $x = [double]($Pos.X)/($ScreenInfo.LogicalWeight)
+    $y = [double]($Pos.Y)/($ScreenInfo.LogicalHeight)
     # 補償係數 (計算方法是把滑鼠移動到右下角然後用1去除以得到的數，不同解析度補償可能不同這邊用2K做的)
-    $x = $x*1.00058616647127884
-    $y = $y*1.00093808630394
+    # $x = $x*1.00058616647127884
+    # $y = $y*1.00093808630394
     # 解析到真實解析度
     $x = $x*($ScreenInfo.Width)
     $y = $y*($ScreenInfo.Height)
@@ -61,37 +45,48 @@ function Get-CursorPosition {
         $y = $y/($ScreenInfo.Height)
     }
     # 輸出
-    [PSCustomObject]@{ X = $x; Y = $y }
+    [PSCustomObject]@{ X=$x; Y=$y }
 } # Get-CursorPosition
 
 # 設置滑鼠座標
-Add-Type -MemberDefinition '[DllImport("user32.dll")] public static extern void mouse_event(int flags, int dx, int dy, int cButtons, int info);' -Name U32 -Namespace W;
 function Set-CursorPosition {
     param (
         [double] $X,
         [double] $Y,
-        [switch] $Rate
+        [switch] $DeNormalization
     )
-    # 正規化
-    if (!$Rate) {
+    # 載入函式
+    if (!$__Set_MouseEvent_Once__) { $Script:__Set_MouseEvent_Once__ = $true
+        Add-Type -MemberDefinition '[DllImport("user32.dll")] public static extern void mouse_event(int flags, int dx, int dy, int cButtons, int info);' -Name U32 -Namespace W;
+    }
+    # 正規化[0-1]
+    if (!$DeNormalization) {
         $X = $X/($ScreenInfo.Width)
         $Y = $Y/($ScreenInfo.Height)
     }
-    # 設定左標
+    # 防止超出主螢幕
+    if ($X -gt 1) { $X = 1 }
+    if ($Y -gt 1) { $Y = 1 }
+    # 設定座標(正規化[0~65535])
     [W.U32]::mouse_event(0x8000 -bor 0x001, $X*65535, $Y*65535, 0, 0);
-} # Set-CursorPosition (Get-CursorPosition 100); sleep 1; Set-CursorPosition (Get-CursorPosition -100)
+} 
+# $Pos = Get-CursorPosition
+# $Pos
+# Set-CursorPosition ($Pos.X+100) ($Pos.Y)
+# Start-Sleep 1
+# Set-CursorPosition ($Pos.X) ($Pos.Y)
 
 
 ###################################################################################################
 # 保持螢幕亮著 (https://gist.github.com/jamesfreeman959/231b068c3d1ed6557675f21c0e346a9c)
 function KeepScrOn {
     Param(
-        [UInt64] $Time = 59,
-        [UInt64] $Offset = 1,
+        [Double] $Time = 59,
+        [Double] $Offset = 1,
         [Switch] $Debug
     )
-    if ($Debug) {$Offset=100}
-    $Msg = "Running KeepScrOn... (Press Ctrl+C to end.)"
+    if ($Debug) { $Time=3; $Offset=100 }
+    $Msg = "Running KeepScrOn_Mouse... (Press Ctrl+C to exit.)"
     Write-Host "[$((Get-Date).Tostring("yyyy/MM/dd HH:mm:ss.fff"))] $Msg"
     # 開始循環
     while (1) {
@@ -108,30 +103,34 @@ function KeepScrOn {
         # 每隔多久偏移一次
         Start-Sleep -Seconds $Time
     }
-} # KeepScrOn 1 -Debug
+} # KeepScrOn -Debug
 
-# 按鍵式的 (有些系統沒法靠滑鼠保持)
+# 按鍵式的 (上面的函式沒辦法對應滑鼠跑到非主螢幕上)
 function KeepScrOn2 {
     param (
-        [UInt64] $Time = 899,
-        [String] $Key = '{NUMLOCK}'
+        [Double] $Time = 59,
+        [String] $Key = '{SCROLLLOCK}',
+        [Double] $Intervals =0.01,
+        [Switch] $Debug
     )
+    # 偵錯模式
+    if ($Debug) { $Key = '{CAPSLOCK}'; $Time=0.5; $Intervals=500 }
     # 加載函數
     [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
     $WShell = New-Object -ComObject WScript.Shell
     # 提示訊息
-    $Msg = "Running KeepScrOn_key... (Press Ctrl+C to end.)"
+    $Msg = "Running KeepScrOn_key... (Press Ctrl+C to exit.)"
     Write-Host "[$((Get-Date).Tostring("yyyy/MM/dd HH:mm:ss.fff"))] $Msg"
     # 起始檢測
-    foreach($item in (1..4)){ $WShell.SendKeys($Key); Start-Sleep -Milliseconds 100; }
+    foreach($item in (1..4)){ $WShell.SendKeys('{CAPSLOCK}'); Start-Sleep -Milliseconds 100; }
     # 開始循環
     while (1) {
         Start-Sleep $Time
         $WShell.SendKeys($Key)
-        Start-Sleep -Milliseconds 0.01
+        Start-Sleep -Milliseconds $Intervals
         $WShell.SendKeys($Key)
     }
-} # KeepScrOn2
+} # KeepScrOn2 -Debug
 
 
 ###################################################################################################
