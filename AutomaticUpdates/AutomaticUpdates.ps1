@@ -8,7 +8,7 @@ function AutomaticUpdates {
         if (Test-Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU") {
             reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /f
         }
-        (Get-Service -Name:wuauserv)|Set-Service -StartupType:Manual
+        (Get-Service -Name:wuauserv)|Set-Service -StartupType:Automatic
         if ((Get-Service -Name:wuauserv).Status -eq "Stopped") { 
             net start wuauserv
             (Get-Service -Name:wuauserv)|Select-Object Name,DisplayName,Status,StartType
