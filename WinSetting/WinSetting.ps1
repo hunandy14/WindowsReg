@@ -64,6 +64,9 @@ function Setting_User {
     
     # 關閉 WindowsStore 的自動更新 (關閉:2, 開啟:4)
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsStore\WindowsUpdate" /v "AutoDownload" /t REG_DWORD /d 2 /f
+    
+    # rdp遠端桌面連線啟用60fps
+    reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations" /v "DWMFRAMEINTERVAL" /t REG_DWORD /d 15 /f
 }
 # ==================================================================================================
 # 個人用設定
