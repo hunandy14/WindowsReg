@@ -128,7 +128,7 @@ function StopWinUpdate {
         New-ItemProperty $regKey 'ScheduledInstallTime' -PropertyType:'DWord' -Value '00000003' -EA:0 |Out-Null
         # 設置服務為手動
         Set-Service wuauserv -StartupType:Manual
-        Start-Service wuauserv
+        Stop-Service wuauserv
         Write-Host "已將更新設置為不檢查更新 (不會自動檢查更新, 但是手動按下檢查後仍會自動下載並安裝)"
         return
     } elseif ($Stop) {
