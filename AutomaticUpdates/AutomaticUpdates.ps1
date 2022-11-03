@@ -43,6 +43,118 @@ function AutomaticUpdates {
     }
 } # AutomaticUpdates -Manual
 
+# 刪除空機碼
+function Remove-EmptyRegistryKey {
+    param (
+        [Parameter(Position = 0, ParameterSetName = "", Mandatory)]
+        [string] $Key
+    )
+    $regKey = $Key -replace("^HKEY_","Registry::HKEY_")
+    if (Test-Path $regKey) {
+        if ((!(Get-ChildItem $regKey) -and !(Get-ItemProperty $regKey))) {
+            Remove-Item $regKey
+        }
+    }
+} # Remove-EmptyRegistryKey "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+
+# 刪除機碼
+function Remove-Registry {
+    param (
+        [Parameter(Position = 0, ParameterSetName = "", Mandatory)]
+        [string] $Key,
+        [Parameter(Position = 1, ParameterSetName = "")]
+        [object] $Name
+    )
+    $regKey = $Key -replace("^HKEY_","Registry::HKEY_")
+    if (Get-ItemProperty -LiteralPath:$regKey $Name) { Remove-ItemProperty -LiteralPath:$regKey $Name }
+} 
+# reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v AUOptions /t REG_DWORD /d 00000002 /f
+# Remove-Registry HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU AUOptions
+
+function StopWinUpdate {
+    [CmdletBinding(DefaultParameterSetName = "D")]
+    param(
+        [Parameter(ParameterSetName = "A")]
+        [switch] $Default,
+        [Parameter(ParameterSetName = "B")]
+        [switch] $Manual,
+        [Parameter(ParameterSetName = "B2")]
+        [switch] $NotCheck,
+        [Parameter(ParameterSetName = "C")]
+        [switch] $Stop, # 群組原則恢復預設
+        [Parameter(ParameterSetName = "D")]
+        [switch] $Help
+    )
+    # 群組原則對應的機碼位置
+    $key1 = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+    $key2 = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
+    # 各項功能
+    if ($Default) {
+        # 群組原則恢復預設
+        Remove-Registry $key2 AUOptions -EA:0
+        Remove-Registry $key2 NoAutoUpdate -EA:0
+        Remove-Registry $key2 ScheduledInstallDay -EA:0
+        Remove-Registry $key2 ScheduledInstallEveryWeek -EA:0
+        Remove-Registry $key2 ScheduledInstallTime -EA:0
+        Remove-EmptyRegistryKey $key2
+        Remove-EmptyRegistryKey $key1
+        # 啟動服務
+        Set-Service wuauserv -StartupType:AutomaticDelayedStart
+        Start-Service wuauserv
+        Write-Host "已將更新恢復至預設狀態"
+        return
+    } elseif ($Manual) {
+        # 群組原則設定成手動
+        $regKey = $Key2 -replace("^HKEY_","Registry::HKEY_")
+        if (!(Test-Path $regKey)) { New-Item $regKey -Force |Out-Null }
+        New-ItemProperty $regKey 'AUOptions' -PropertyType:'DWord' -Value '00000002' -EA:0 |Out-Null
+        New-ItemProperty $regKey 'NoAutoUpdate' -PropertyType:'DWord' -Value '00000000' -EA:0 |Out-Null
+        New-ItemProperty $regKey 'ScheduledInstallDay' -PropertyType:'DWord' -Value '00000000' -EA:0 |Out-Null
+        New-ItemProperty $regKey 'ScheduledInstallEveryWeek' -PropertyType:'DWord' -Value '00000001' -EA:0 |Out-Null
+        New-ItemProperty $regKey 'ScheduledInstallTime' -PropertyType:'DWord' -Value '00000003' -EA:0 |Out-Null
+        # 啟動服務
+        Set-Service wuauserv -StartupType:AutomaticDelayedStart
+        Start-Service wuauserv
+        Write-Host "已將更新設置為手動 (系統仍然會自動檢查更新並跳出提醒但不會擅自安裝)"
+        return
+    } elseif ($NotCheck) {
+        # 群組原則恢復預設
+        Remove-Registry $key2 AUOptions -EA:0
+        Remove-Registry $key2 NoAutoUpdate -EA:0
+        Remove-Registry $key2 ScheduledInstallDay -EA:0
+        Remove-Registry $key2 ScheduledInstallEveryWeek -EA:0
+        Remove-Registry $key2 ScheduledInstallTime -EA:0
+        Remove-EmptyRegistryKey $key2
+        Remove-EmptyRegistryKey $key1
+        # 設置服務為手動
+        Set-Service wuauserv -StartupType:Manual
+        Start-Service wuauserv
+        Write-Host "已將更新設置為不檢查更新 (系統不會自動檢查更新, 但是手動按下檢查後仍會自動下載並安裝)"
+        return
+    } elseif ($Stop) {
+        # 群組原則恢復預設
+        Remove-Registry $key2 AUOptions -EA:0
+        Remove-Registry $key2 NoAutoUpdate -EA:0
+        Remove-Registry $key2 ScheduledInstallDay -EA:0
+        Remove-Registry $key2 ScheduledInstallEveryWeek -EA:0
+        Remove-Registry $key2 ScheduledInstallTime -EA:0
+        Remove-EmptyRegistryKey $key2
+        Remove-EmptyRegistryKey $key1
+        # 停用服務
+        Set-Service wuauserv -StartupType:Disabled
+        Stop-Service wuauserv
+        Write-Host "已停用自動更新"
+        return
+    }
+}
+# StopWinUpdate -Default
+# StopWinUpdate -Manual
+# StopWinUpdate -NotCheck
+# StopWinUpdate -Stop
+
+
+
+
 # 鎖定Windows版本
 function LockWindowsVersion {
     param (
