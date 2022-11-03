@@ -210,3 +210,16 @@ function Win11_Update {
         Write-Host "已還原CPU與TPM限制" -ForegroundColor:Yellow
     }
 } # Win11_Update -Unlock
+
+
+# 刪除更新中的緩存
+function Remove-WinUpdateStorage {
+    $StoragePath1 = "$env:systemroot\SoftwareDistribution"
+    # 關閉服務
+    Stop-Service wuauserv
+    # 刪除緩存
+    if (!((Get-Service wuauserv).Status -eq "Stopped")) { Write-Host "服務似乎沒有被停止, 請嘗試重新執行"; return }
+    if (Test-Path $StoragePath1) { Remove-Item $StoragePath1 -Recurse -Force }
+    # 成功訊息
+    Write-Host "執行完成，已成功刪除更新的暫存檔案"
+} # Remove-WinUpdateStorage

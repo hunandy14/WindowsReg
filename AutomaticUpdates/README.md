@@ -35,6 +35,16 @@ irm bit.ly/StopWinUpdate|iex; StopWinUpdate -NotCheck
 
 <br><br><br>
 
+## 刪除已下載的緩存
+```PS1
+irm bit.ly/StopWinUpdate|iex; Remove-WinUpdateStorage
+```
+
+> 點了但是反悔了不想安裝了，關機選單裡卡一個黃色驚嘆號要求可以用這個清掉
+> (測試中有過圖標已經清掉了，但重啟後還是進入跑更新的頁面的狀況，可能不是太萬能)
+
+<br><br><br>
+
 ## 鎖定 Windows 版本
 ![](img/Cover.png)
 
