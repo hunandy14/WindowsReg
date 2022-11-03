@@ -10,14 +10,17 @@ https://github.com/hunandy14/WindowsReg/issues
 #### WindowsUpdate
 
 ```ps1
-# 改為手動
-irm bit.ly/StopWinUpdate|iex; AutomaticUpdates -Manual
+# 恢復預設值
+irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Default
 
-# 停用更新
-irm bit.ly/StopWinUpdate|iex; AutomaticUpdates -Stop
+# 設定更新為手動
+irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Manual
 
-# 恢復預設
-irm bit.ly/StopWinUpdate|iex; AutomaticUpdates
+# 關閉自動更新
+irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Stop
+
+# 設置更新為不檢查
+irm bit.ly/StopWinUpdate|iex; StopWinUpdate -NotCheck
 ```
 
 ```ps1
@@ -97,14 +100,7 @@ irm bit.ly/3s9kWHO|iex; OnceRightClick
 irm bit.ly/3BkBukF|iex; Install-Regjump
 ```
 
-#### EdgeMediaControls
-提示：工作列的圖示可能需要重新釘選  
-
-```ps1
-# 將設定值的捷徑覆蓋到桌面及開始選單的 EDGE
-irm bit.ly/3IeentX|iex; EdgeMediaControls -Desktop -Start
-
-```
+<br>
 
 ### DeviceDriverUpdate
 禁止微軟更新特定裝置的驅動程式  
@@ -117,15 +113,21 @@ irm bit.ly/3IgtUJU|iex; DeviceDriverUpdate -Name:"AMD|NVIDIA"
 irm bit.ly/3IgtUJU|iex; DeviceDriverUpdate
 ```
 
+<br>
+
 ### 家用版啟用群組原則(gpedit.msc)
 ```ps1
 irm bit.ly/35EVGlc|iex; GpeditEbable
 ```
 
+<br>
+
 ### 不用輸入密碼自動登入Windows桌面
 ```ps1
 irm bit.ly/3tkkqIn|iex; netplwiz
 ```
+
+<br>
 
 ### 登入Windows自動亮燈
 ```ps1
