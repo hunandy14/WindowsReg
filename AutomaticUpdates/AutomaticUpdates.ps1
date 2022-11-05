@@ -1,48 +1,3 @@
-function AutomaticUpdates {
-    param(
-        [switch] $Manual,
-        [switch] $Stop
-    )
-    # 將自動更新設置為手動
-    if ($Manual) { 
-        if (Test-Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU") {
-            reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /f
-        }
-        (Get-Service -Name:wuauserv)|Set-Service -StartupType:Automatic
-        if ((Get-Service -Name:wuauserv).Status -eq "Stopped") { 
-            net start wuauserv
-            (Get-Service -Name:wuauserv)|Select-Object Name,DisplayName,Status,StartType
-        }
-        reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v NoAutoUpdate /t REG_DWORD /d 00000000 /f
-        reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v AUOptions /t REG_DWORD /d 00000002 /f
-        reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v ScheduledInstallDay /t REG_DWORD /d 00000000 /f
-        reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v ScheduledInstallTime /t REG_DWORD /d 00000003 /f
-        reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v ScheduledInstallEveryWeek /t REG_DWORD /d 00000001 /f
-        if ($LockVersion) { AutomaticUpdates $LockVersion }
-    } 
-    # 停用自動更新
-    elseif ($Stop) {
-        if (Test-Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate") {
-            reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate /f
-        }
-        # reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v NoAutoUpdate /t REG_DWORD /d 00000001 /f
-        if ((Get-Service -Name:wuauserv).Status -eq "Running") { net stop wuauserv }
-        (Get-Service -Name:wuauserv)|Set-Service -StartupType:disabled
-        (Get-Service -Name:wuauserv)|Select-Object Name,DisplayName,Status,StartType
-    }
-    # 恢復為未設定狀態
-    else { 
-        if (Test-Path "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate") {
-            reg delete HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate /f
-        }
-        (Get-Service -Name:wuauserv)|Set-Service -StartupType:Automatic
-        if ((Get-Service -Name:wuauserv).Status -eq "Stopped") { 
-            net start wuauserv
-            (Get-Service -Name:wuauserv)|Select-Object Name,DisplayName,Status,StartType
-        }
-    }
-} # AutomaticUpdates -Manual
-
 # 刪除空機碼
 function Remove-EmptyRegistryKey {
     param (
@@ -71,6 +26,10 @@ function Remove-Registry {
 # reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v AUOptions /t REG_DWORD /d 00000002 /f
 # Remove-Registry HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU AUOptions
 
+
+
+
+# 停用自動更新
 function StopWinUpdate {
     [CmdletBinding(DefaultParameterSetName = "D")]
     param(
@@ -154,7 +113,6 @@ function StopWinUpdate {
 
 
 
-
 # 鎖定Windows版本
 function LockWindowsVersion {
     param (
@@ -189,6 +147,9 @@ function LockWindowsVersion {
 } # LockWindowsVersion -Current
 # LockWindowsVersion -Version:21H2
 
+
+
+# 解除升級Win11限制
 function Win11_Update {
     param (
         [Parameter(Position = 0, ParameterSetName = "Unlock", Mandatory=$true)]
@@ -210,6 +171,7 @@ function Win11_Update {
         Write-Host "已還原CPU與TPM限制" -ForegroundColor:Yellow
     }
 } # Win11_Update -Unlock
+
 
 
 # 刪除更新中的緩存
