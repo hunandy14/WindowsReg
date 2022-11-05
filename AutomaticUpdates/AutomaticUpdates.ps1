@@ -218,8 +218,10 @@ function Remove-WinUpdateStorage {
     # 關閉服務
     Stop-Service wuauserv
     # 刪除緩存
-    if (!((Get-Service wuauserv).Status -eq "Stopped")) { Write-Host "服務似乎沒有被停止, 請嘗試重新執行"; return }
+    if (!((Get-Service wuauserv).Status -eq "Stopped")) {
+        Write-Host "錯誤:: Windows Update 服務還在運行中無法刪除 (請嘗試重新執行)"; return
+    }
     if (Test-Path $StoragePath1) { Remove-Item $StoragePath1 -Recurse -Force }
     # 成功訊息
-    Write-Host "執行完成，已成功刪除更新的暫存檔案"
+    Write-Host "已成功刪除 $StoragePath1 中的更新暫存檔"
 } # Remove-WinUpdateStorage

@@ -117,7 +117,7 @@ irm bit.ly/3IgtUJU|iex; DeviceDriverUpdate
 
 ### 家用版啟用群組原則(gpedit.msc)
 ```ps1
-irm bit.ly/35EVGlc|iex; GpeditEbable
+irm bit.ly/InstallGpedit|iex
 ```
 
 <br>
