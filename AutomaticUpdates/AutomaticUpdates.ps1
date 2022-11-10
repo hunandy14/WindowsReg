@@ -58,7 +58,7 @@ function StopWinUpdate {
         Remove-EmptyRegistryKey $key2
         Remove-EmptyRegistryKey $key1
         # 啟動服務
-        Set-Service wuauserv -StartupType:AutomaticDelayedStart
+        sc.exe config wuauserv start= delayed-auto |Out-Null
         Start-Service wuauserv
         Write-Host "已將更新恢復至預設狀態"
         return
@@ -72,7 +72,7 @@ function StopWinUpdate {
         New-ItemProperty $regKey 'ScheduledInstallEveryWeek' -PropertyType:'DWord' -Value '00000001' -EA:0 |Out-Null
         New-ItemProperty $regKey 'ScheduledInstallTime' -PropertyType:'DWord' -Value '00000003' -EA:0 |Out-Null
         # 啟動服務
-        Set-Service wuauserv -StartupType:AutomaticDelayedStart
+        sc.exe config wuauserv start= delayed-auto |Out-Null
         Start-Service wuauserv
         Write-Host "已將更新設置為手動 (系統仍然會自動檢查更新並跳出提醒但不會擅自安裝)"
         return
