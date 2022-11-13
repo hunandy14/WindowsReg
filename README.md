@@ -18,9 +18,6 @@ irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Manual
 
 # 關閉自動更新
 irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Stop
-
-# 設置更新為不檢查
-irm bit.ly/StopWinUpdate|iex; StopWinUpdate -NotCheck
 ```
 
 ```ps1

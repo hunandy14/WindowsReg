@@ -31,18 +31,13 @@ function Remove-Registry {
 
 # 停用自動更新
 function StopWinUpdate {
-    [CmdletBinding(DefaultParameterSetName = "D")]
     param(
         [Parameter(ParameterSetName = "A")]
         [switch] $Default,
         [Parameter(ParameterSetName = "B")]
         [switch] $Manual,
-        [Parameter(ParameterSetName = "B2")]
-        [switch] $NotCheck,
         [Parameter(ParameterSetName = "C")]
-        [switch] $Stop, # 群組原則恢復預設
-        [Parameter(ParameterSetName = "D")]
-        [switch] $Help
+        [switch] $Stop # 群組原則恢復預設
     )
     # 群組原則對應的機碼位置
     $key1 = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
@@ -71,24 +66,10 @@ function StopWinUpdate {
         New-ItemProperty $regKey 'ScheduledInstallDay' -PropertyType:'DWord' -Value '00000000' -EA:0 |Out-Null
         New-ItemProperty $regKey 'ScheduledInstallEveryWeek' -PropertyType:'DWord' -Value '00000001' -EA:0 |Out-Null
         New-ItemProperty $regKey 'ScheduledInstallTime' -PropertyType:'DWord' -Value '00000003' -EA:0 |Out-Null
-        # 啟動服務
-        sc.exe config wuauserv start= delayed-auto |Out-Null
-        Start-Service wuauserv
-        Write-Host "已將更新設置為手動 (系統仍然會自動檢查更新並跳出提醒但不會擅自安裝)"
-        return
-    } elseif ($NotCheck) {
-        # 群組原則設定成手動
-        $regKey = $Key2 -replace("^HKEY_","Registry::HKEY_")
-        if (!(Test-Path $regKey)) { New-Item $regKey -Force |Out-Null }
-        New-ItemProperty $regKey 'AUOptions' -PropertyType:'DWord' -Value '00000002' -EA:0 |Out-Null
-        New-ItemProperty $regKey 'NoAutoUpdate' -PropertyType:'DWord' -Value '00000000' -EA:0 |Out-Null
-        New-ItemProperty $regKey 'ScheduledInstallDay' -PropertyType:'DWord' -Value '00000000' -EA:0 |Out-Null
-        New-ItemProperty $regKey 'ScheduledInstallEveryWeek' -PropertyType:'DWord' -Value '00000001' -EA:0 |Out-Null
-        New-ItemProperty $regKey 'ScheduledInstallTime' -PropertyType:'DWord' -Value '00000003' -EA:0 |Out-Null
         # 設置服務為手動
         Set-Service wuauserv -StartupType:Manual
         Stop-Service wuauserv
-        Write-Host "已將更新設置為不檢查更新 (不會自動檢查更新, 但是手動按下檢查後仍會自動下載並安裝)"
+        Write-Host "已將更新設置為手動 (手動按下檢查後仍會自動下載並安裝)"
         return
     } elseif ($Stop) {
         # 群組原則恢復預設
