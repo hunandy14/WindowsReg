@@ -4,7 +4,7 @@ function Setting_System{
     # UAC 不要把桌面變黑
     irm bit.ly/3Gca80R|iex; SetUAC -Set:1
     # 設定成手動更新
-    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Manual
+    irm bit.ly/3GAuGRF|iex; StopWinUpdate -Manual
     # 關閉及時掃描
     irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
 }
@@ -13,7 +13,7 @@ function Setting_System2{
     # 關閉 UAC
     irm bit.ly/3Gca80R|iex; SetUAC -Set:0
     # 設定成手動更新
-    irm bit.ly/3GAuGRF|iex; AutomaticUpdates -Stop
+    irm bit.ly/3GAuGRF|iex; StopWinUpdate -Stop
     # 關閉防毒
     irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
 }
