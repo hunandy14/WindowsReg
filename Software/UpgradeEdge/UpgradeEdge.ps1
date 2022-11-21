@@ -1,4 +1,4 @@
-function AutoUpgradeEdge([Switch] $StopEdgeProcess) {
+function AutoUpgradeEdge {
     # 獲取當前版本資訊
     $EdgePath = (Get-ItemPropertyValue 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\msedge.exe' "(default)")
     $CurrVer  = (Get-Item $EdgePath).VersionInfo.ProductVersion
@@ -14,8 +14,7 @@ function AutoUpgradeEdge([Switch] $StopEdgeProcess) {
         $DLPath = "$env:TEMP\$NewVer\$FileName"
         if (!(Test-Path $DLPath)) { New-Item $DLPath -ItemType:File -Force|Out-Null } 
         Start-BitsTransfer $Url $DLPath
-        Start-Process msiexec.exe -ArgumentList "/i $DLPath /norestart" -Wait
+        Start-Process msiexec.exe -ArgumentList "/i $DLPath /qn /norestart" -Wait
         Write-Host "Edge has been updated to the latest version $NewVer" -ForegroundColor:Yellow
-        if($StopEdgeProcess) {Stop-Process -ProcessName:'msedge'}
     }
 } AutoUpgradeEdge
