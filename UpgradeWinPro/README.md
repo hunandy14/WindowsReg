@@ -7,3 +7,5 @@ irm bit.ly/UpgradeWinPro|iex
 ```
 
 升級後無法退回小心不要按錯了。
+
+![](img/Cover.png)
