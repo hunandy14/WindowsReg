@@ -20,6 +20,30 @@ irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Manual
 irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Stop
 ```
 
+#### WindowsDefenderAntivirus
+
+```ps1
+# 完整關閉 WindowsDefender
+irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -Disable
+
+# 關閉即時掃描 (基本上就能避免 1. 砍你檔案 2. 阻擋執行非安全軟體)
+irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
+
+# 恢復預設
+irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus
+```
+
+### WindwosDriverUpdate
+```ps1
+# 禁用AMD顯示卡驅動更新
+irm bit.ly/DisAMDUpdate|iex; DisableVideoDriverUpdate -Filter:Radeon
+
+# 恢復所有設備的自動更新
+irm bit.ly/DisAMDUpdate|iex; DisableVideoDriverUpdate -Recovery
+```
+
+#### WindowsUpdate Version
+
 ```ps1
 # 鎖定當前 Windows 版本
 irm bit.ly/StopWinUpdate|iex; LockWindowsVersion -Current
@@ -39,30 +63,19 @@ irm bit.ly/StopWinUpdate|iex; Win11_Update -Unlock
 irm bit.ly/StopWinUpdate|iex; Win11_Update -Recovery
 ```
 
+#### InstantGo
 ```ps1
 # 關閉現代待機
-irm bit.ly/3JiAEaA|iex; InstantGo -Disable
+irm bit.ly/SetInstantGo|iex; InstantGo -Disable
 
 # 開啟現代待機
-irm bit.ly/3JiAEaA|iex; InstantGo -Enable
+irm bit.ly/SetInstantGo|iex; InstantGo -Enable
 
 # 查看狀態
-irm bit.ly/3JiAEaA|iex; InstantGo -Info
+irm bit.ly/SetInstantGo|iex; InstantGo -Info
 ```
 
-#### WindowsDefenderAntivirus
 
-```ps1
-# 完整關閉 WindowsDefender
-irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -Disable
-
-# 關閉即時掃描 (基本上就能避免 1. 砍你檔案 2. 阻擋執行非安全軟體)
-irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
-
-# 恢復預設
-irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus
-
-```
 
 #### Windows UAC
 ```ps1
@@ -95,19 +108,6 @@ irm bit.ly/3s9kWHO|iex; OnceRightClick
 #### Install-Regjump
 ```ps1
 irm bit.ly/3BkBukF|iex; Install-Regjump
-```
-
-<br>
-
-### DeviceDriverUpdate
-禁止微軟更新特定裝置的驅動程式  
-
-```ps1
-# 禁止微軟自動更新 NVIDI 和 AMD 設備的驅動程式
-irm bit.ly/3IgtUJU|iex; DeviceDriverUpdate -Name:"AMD|NVIDIA"
-
-# 恢復所有設備自動更新
-irm bit.ly/3IgtUJU|iex; DeviceDriverUpdate
 ```
 
 <br>
