@@ -7,7 +7,7 @@ https://github.com/hunandy14/WindowsReg/issues
 <br><br>
 
 # 系統
-#### WindowsUpdate
+### WindowsUpdate
 
 ```ps1
 # 恢復預設值
@@ -20,7 +20,7 @@ irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Manual
 irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Stop
 ```
 
-#### WindowsDefenderAntivirus
+### WindowsDefenderAntivirus
 
 ```ps1
 # 完整關閉 WindowsDefender
@@ -42,7 +42,7 @@ irm bit.ly/DisAMDUpdate|iex; DisableVideoDriverUpdate -Filter:Radeon
 irm bit.ly/DisAMDUpdate|iex; DisableVideoDriverUpdate -Recovery
 ```
 
-#### WindowsUpdate Version
+### WindowsUpdate Version
 
 ```ps1
 # 鎖定當前 Windows 版本
@@ -63,7 +63,7 @@ irm bit.ly/StopWinUpdate|iex; Win11_Update -Unlock
 irm bit.ly/StopWinUpdate|iex; Win11_Update -Recovery
 ```
 
-#### InstantGo
+### InstantGo
 ```ps1
 # 關閉現代待機
 irm bit.ly/SetInstantGo|iex; InstantGo -Disable
@@ -75,9 +75,7 @@ irm bit.ly/SetInstantGo|iex; InstantGo -Enable
 irm bit.ly/SetInstantGo|iex; InstantGo -Info
 ```
 
-
-
-#### Windows UAC
+### Windows UAC
 ```ps1
 # 不要把桌面變黑
 irm bit.ly/3Gca80R|iex; SetUAC -Set:1
