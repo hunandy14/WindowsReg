@@ -28,6 +28,21 @@ function Remove-Registry {
 
 
 
+# 刪除更新中的緩存
+function Remove-WinUpdateStorage {
+    $StoragePath1 = "$env:systemroot\SoftwareDistribution"
+    # 關閉服務
+    Stop-Service wuauserv
+    # 刪除緩存
+    if (!((Get-Service wuauserv).Status -eq "Stopped")) {
+        Write-Host "錯誤:: Windows Update 服務還在運行中無法刪除 (請嘗試重新執行)"; return
+    }
+    if (Test-Path $StoragePath1) { Remove-Item $StoragePath1 -Recurse -Force }
+    # 成功訊息
+    Write-Host "已成功刪除 $StoragePath1 中的更新暫存檔"
+} # Remove-WinUpdateStorage
+
+
 
 # 停用自動更新
 function StopWinUpdate {
@@ -39,11 +54,17 @@ function StopWinUpdate {
         [Parameter(ParameterSetName = "C")]
         [switch] $Stop # 群組原則恢復預設
     )
+    # 偵測版本
+    if (((Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").EditionID) -eq 'Core') { $IsWindowsHome=$true }
     # 群組原則對應的機碼位置
     $key1 = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
     $key2 = "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
     # 各項功能
     if ($Default) {
+        # 家用版應對
+        if ($IsWindowsHome) {
+            if (Test-Path "C:\Windows\SoftwareDistribution\Download" -PathType:Leaf) { Remove-WinUpdateStorage }
+        }
         # 群組原則恢復預設
         Remove-Registry $key2 AUOptions -EA:0
         Remove-Registry $key2 NoAutoUpdate -EA:0
@@ -58,6 +79,8 @@ function StopWinUpdate {
         Write-Host "已將更新恢復至預設狀態"
         return
     } elseif ($Manual) {
+        # 家用版應對
+        if ($IsWindowsHome) { Write-Warning "家用版無法透過群組原則設置手動更新，請使用 `"StopWinUpdate -Stop`" 停止更新"; return }
         # 群組原則設定成手動
         $regKey = $Key2 -replace("^HKEY_","Registry::HKEY_")
         if (!(Test-Path $regKey)) { New-Item $regKey -Force |Out-Null }
@@ -72,6 +95,13 @@ function StopWinUpdate {
         Write-Host "已將更新設置為手動 (手動按下檢查後仍會自動下載並安裝)"
         return
     } elseif ($Stop) {
+        # 家用版應對
+        if ($IsWindowsHome) {
+            if (Test-Path "C:\Windows\SoftwareDistribution\Download") { Remove-Item "C:\Windows\SoftwareDistribution\Download" -Recurse -Force; }
+            New-Item "C:\Windows\SoftwareDistribution\Download" -ItemType:File |Out-Null
+            Write-Host "由於家用版無法透過[群組原則]或[服務]停止更新只能透過其他方式停用, 而這會導致出現以下訊息"
+            Write-Host "  【某些更新檔案已遺失或有問題。我們稍後會嘗試重新下載更新。錯誤碼：(0x80070003)】"
+        }
         # 群組原則恢復預設
         Remove-Registry $key2 AUOptions -EA:0
         Remove-Registry $key2 NoAutoUpdate -EA:0
@@ -83,7 +113,7 @@ function StopWinUpdate {
         # 停用服務
         Set-Service wuauserv -StartupType:Disabled
         Stop-Service wuauserv
-        Write-Host "已停用自動更新"
+        Write-Host "已停用自動更新 (使用 `"StopWinUpdate -Default`" 命令可以恢復)"
         return
     }
 }
@@ -152,19 +182,3 @@ function Win11_Update {
         Write-Host "已還原CPU與TPM限制" -ForegroundColor:Yellow
     }
 } # Win11_Update -Unlock
-
-
-
-# 刪除更新中的緩存
-function Remove-WinUpdateStorage {
-    $StoragePath1 = "$env:systemroot\SoftwareDistribution"
-    # 關閉服務
-    Stop-Service wuauserv
-    # 刪除緩存
-    if (!((Get-Service wuauserv).Status -eq "Stopped")) {
-        Write-Host "錯誤:: Windows Update 服務還在運行中無法刪除 (請嘗試重新執行)"; return
-    }
-    if (Test-Path $StoragePath1) { Remove-Item $StoragePath1 -Recurse -Force }
-    # 成功訊息
-    Write-Host "已成功刪除 $StoragePath1 中的更新暫存檔"
-} # Remove-WinUpdateStorage
