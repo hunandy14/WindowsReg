@@ -40,7 +40,7 @@ function Remove-WinUpdateStorage {
     # 刪除緩存
     if (Test-Path $StoragePath1) { Remove-Item $StoragePath1 -Recurse -Force }
     # 成功訊息
-    Write-Host "已成功刪除 $StoragePath1 中的更新暫存檔"
+    Write-Output "已成功刪除 $StoragePath1 中的更新暫存檔"
 } # Remove-WinUpdateStorage
 
 
@@ -63,9 +63,7 @@ function StopWinUpdate {
     # 各項功能
     if ($Default) {
         # 家用版應對
-        if ($IsWindowsHome) {
-            if (Test-Path "C:\Windows\SoftwareDistribution\Download" -PathType:Leaf) { Remove-WinUpdateStorage }
-        }
+        if ($IsWindowsHome) { if (Test-Path "C:\Windows\SoftwareDistribution\Download" -PathType:Leaf) { Remove-WinUpdateStorage|Out-Null } }
         # 群組原則恢復預設
         Remove-Registry $key2 AUOptions -EA:0
         Remove-Registry $key2 NoAutoUpdate -EA:0
@@ -107,7 +105,6 @@ function StopWinUpdate {
         if ($IsWindowsHome) {
             if (Test-Path "C:\Windows\SoftwareDistribution\Download") { Remove-Item "C:\Windows\SoftwareDistribution\Download" -Recurse -Force; }
             New-Item "C:\Windows\SoftwareDistribution\Download" -ItemType:File |Out-Null
-            Write-Host "由於家用版無法透過[群組原則]或[服務]停止更新只能透過其他方式停用, 可能會出現錯誤訊息。無視就好。"
         }
         # 群組原則恢復預設
         Remove-Registry $key2 AUOptions -EA:0
