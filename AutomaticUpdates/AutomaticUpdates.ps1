@@ -30,7 +30,7 @@ function Remove-Registry {
 
 # 刪除更新中的緩存
 function Remove-WinUpdateStorage {
-    $StoragePath1 = "$env:systemroot\SoftwareDistribution"
+    $DLPath = "$env:systemroot\SoftwareDistribution"
     # 關閉服務
     Stop-Service wuauserv; Start-Sleep 1
     while (!((Get-Service wuauserv).Status -eq "Stopped")) {
@@ -38,9 +38,9 @@ function Remove-WinUpdateStorage {
         Stop-Service wuauserv; Start-Sleep 1
     }
     # 刪除緩存
-    if (Test-Path $StoragePath1) { Remove-Item $StoragePath1 -Recurse -Force }
+    if (Test-Path $DLPath) { Remove-Item "$DLPath\*" -Recurse -Force }
     # 成功訊息
-    Write-Output "已成功刪除 $StoragePath1 中的更新暫存檔"
+    Write-Output "已成功刪除 $DLPath 中的更新暫存檔"
 } # Remove-WinUpdateStorage
 
 
@@ -103,17 +103,10 @@ function StopWinUpdate {
         }
         # 家用版應對
         if ($IsWindowsHome) {
-            if (Test-Path "C:\Windows\SoftwareDistribution\Download") { Remove-Item "C:\Windows\SoftwareDistribution\Download" -Recurse -Force; }
+            Remove-WinUpdateStorage|Out-Null
+            # if (Test-Path "C:\Windows\SoftwareDistribution\Download") { Remove-Item "C:\Windows\SoftwareDistribution\Download" -Recurse -Force; }
             New-Item "C:\Windows\SoftwareDistribution\Download" -ItemType:File |Out-Null
         }
-        # 群組原則恢復預設
-        Remove-Registry $key2 AUOptions -EA:0
-        Remove-Registry $key2 NoAutoUpdate -EA:0
-        Remove-Registry $key2 ScheduledInstallDay -EA:0
-        Remove-Registry $key2 ScheduledInstallEveryWeek -EA:0
-        Remove-Registry $key2 ScheduledInstallTime -EA:0
-        Remove-EmptyRegistryKey $key2
-        Remove-EmptyRegistryKey $key1
         # 輸出信息
         Write-Host "已停用自動更新 (使用 `"StopWinUpdate -Default`" 命令可以恢復)"
         return
