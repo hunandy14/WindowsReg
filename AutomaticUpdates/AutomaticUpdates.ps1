@@ -35,7 +35,7 @@ function Remove-WinUpdateStorage {
     Stop-Service wuauserv; Start-Sleep 1
     while (!((Get-Service wuauserv).Status -eq "Stopped")) {
         Write-Host "正在嘗試停止 Windows Update 服務.."
-        Stop-Service wuauserv; Start-Sleep 1
+        Stop-Service wuauserv|Out-Null; Start-Sleep 5
     }
     # 刪除緩存
     if (Test-Path $DLPath) { Remove-Item "$DLPath\*" -Recurse -Force }
@@ -99,7 +99,7 @@ function StopWinUpdate {
         Stop-Service wuauserv; Start-Sleep 1
         while (!((Get-Service wuauserv).Status -eq "Stopped")) {
             Write-Host "正在嘗試停止 Windows Update 服務.."
-            Stop-Service wuauserv; Start-Sleep 1
+            Stop-Service wuauserv|Out-Null; Start-Sleep 5
         }
         # 家用版應對
         if ($IsWindowsHome) {
