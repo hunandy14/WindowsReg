@@ -103,12 +103,12 @@ function StopWinUpdate {
         # 群組原則設定成手動
         $regKey = $Key2 -replace("^HKEY_","Registry::HKEY_")
         if (!(Test-Path $regKey)) { New-Item $regKey -Force |Out-Null }
-        New-ItemProperty $regKey 'AUOptions' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
+        Remove-Registry $key2 AUOptions -EA:0
         New-ItemProperty $regKey 'NoAutoRebootWithLoggedOnUsers' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
         New-ItemProperty $regKey 'NoAutoUpdate' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
-        New-ItemProperty $regKey 'ScheduledInstallDay' -PropertyType:'DWord' -Value '00000000' -Force -EA:0 |Out-Null
-        New-ItemProperty $regKey 'ScheduledInstallEveryWeek' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
-        New-ItemProperty $regKey 'ScheduledInstallTime' -PropertyType:'DWord' -Value '00000003' -Force -EA:0 |Out-Null
+        Remove-Registry $key2 ScheduledInstallDay -EA:0
+        Remove-Registry $key2 ScheduledInstallEveryWeek -EA:0
+        Remove-Registry $key2 ScheduledInstallTime -EA:0
         # 設置服務為手動
         Set-Service wuauserv -StartupType:Manual
         Stop-Service wuauserv
