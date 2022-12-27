@@ -13,8 +13,11 @@ https://github.com/hunandy14/WindowsReg/issues
 # 恢復預設值
 irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Default
 
-# 設定更新為手動
+# 設定更新為手動(自動檢查)
 irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Manual
+
+# 設定更新為不檢查
+irm bit.ly/StopWinUpdate|iex; StopWinUpdate -NotCheck
 
 # 關閉自動更新
 irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Stop

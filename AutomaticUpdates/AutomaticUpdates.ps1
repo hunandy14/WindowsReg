@@ -53,6 +53,8 @@ function StopWinUpdate {
         [Parameter(ParameterSetName = "B")]
         [switch] $Manual,
         [Parameter(ParameterSetName = "C")]
+        [switch] $NotCheck,
+        [Parameter(ParameterSetName = "D")]
         [switch] $Stop # 群組原則恢復預設
     )
     # 偵測版本
@@ -66,6 +68,7 @@ function StopWinUpdate {
         if ($IsWindowsHome) { if (Test-Path "C:\Windows\SoftwareDistribution\Download" -PathType:Leaf) { Remove-WinUpdateStorage|Out-Null } }
         # 群組原則恢復預設
         Remove-Registry $key2 AUOptions -EA:0
+        Remove-Registry $key2 NoAutoRebootWithLoggedOnUsers -EA:0
         Remove-Registry $key2 NoAutoUpdate -EA:0
         Remove-Registry $key2 ScheduledInstallDay -EA:0
         Remove-Registry $key2 ScheduledInstallEveryWeek -EA:0
@@ -83,15 +86,33 @@ function StopWinUpdate {
         # 群組原則設定成手動
         $regKey = $Key2 -replace("^HKEY_","Registry::HKEY_")
         if (!(Test-Path $regKey)) { New-Item $regKey -Force |Out-Null }
-        New-ItemProperty $regKey 'AUOptions' -PropertyType:'DWord' -Value '00000002' -EA:0 |Out-Null
-        New-ItemProperty $regKey 'NoAutoUpdate' -PropertyType:'DWord' -Value '00000000' -EA:0 |Out-Null
-        New-ItemProperty $regKey 'ScheduledInstallDay' -PropertyType:'DWord' -Value '00000000' -EA:0 |Out-Null
-        New-ItemProperty $regKey 'ScheduledInstallEveryWeek' -PropertyType:'DWord' -Value '00000001' -EA:0 |Out-Null
-        New-ItemProperty $regKey 'ScheduledInstallTime' -PropertyType:'DWord' -Value '00000003' -EA:0 |Out-Null
+        New-ItemProperty $regKey 'AUOptions' -PropertyType:'DWord' -Value '00000002' -Force -EA:0 |Out-Null
+        New-ItemProperty $regKey 'NoAutoRebootWithLoggedOnUsers' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
+        New-ItemProperty $regKey 'NoAutoUpdate' -PropertyType:'DWord' -Value '00000000' -Force -EA:0 |Out-Null
+        New-ItemProperty $regKey 'ScheduledInstallDay' -PropertyType:'DWord' -Value '00000000' -Force -EA:0 |Out-Null
+        New-ItemProperty $regKey 'ScheduledInstallEveryWeek' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
+        New-ItemProperty $regKey 'ScheduledInstallTime' -PropertyType:'DWord' -Value '00000003' -Force -EA:0 |Out-Null
         # 設置服務為手動
         Set-Service wuauserv -StartupType:Manual
         Stop-Service wuauserv
         Write-Host "已將更新設置為手動 (手動按下檢查後仍會自動下載並安裝)"
+        return
+    } elseif ($NotCheck) {
+        # 家用版應對
+        if ($IsWindowsHome) { Write-Warning "家用版無法透過群組原則設置手動更新，請使用 `"StopWinUpdate -Stop`" 停止更新"; return }
+        # 群組原則設定成手動
+        $regKey = $Key2 -replace("^HKEY_","Registry::HKEY_")
+        if (!(Test-Path $regKey)) { New-Item $regKey -Force |Out-Null }
+        New-ItemProperty $regKey 'AUOptions' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
+        New-ItemProperty $regKey 'NoAutoRebootWithLoggedOnUsers' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
+        New-ItemProperty $regKey 'NoAutoUpdate' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
+        New-ItemProperty $regKey 'ScheduledInstallDay' -PropertyType:'DWord' -Value '00000000' -Force -EA:0 |Out-Null
+        New-ItemProperty $regKey 'ScheduledInstallEveryWeek' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
+        New-ItemProperty $regKey 'ScheduledInstallTime' -PropertyType:'DWord' -Value '00000003' -Force -EA:0 |Out-Null
+        # 設置服務為手動
+        Set-Service wuauserv -StartupType:Manual
+        Stop-Service wuauserv
+        Write-Host "已將更新設置為不檢查 (手動按下檢查後仍會自動下載並安裝)"
         return
     } elseif ($Stop) {
         # 停用服務~
