@@ -1,8 +1,16 @@
 
 # 獲取RE分區
 function Get-RecoveryPartition {
-    [string] $RecoveryPath = ((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
-    if ($RecoveryPath -eq '') { Write-Warning "RE分區尚未啟用"; return }
+    $RecoveryPath = [string] ((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
+    if ($RecoveryPath -eq '') {
+        Write-Warning "RE分區尚未啟用, 嘗試啟用中..."
+        reagentc /enable
+    }
+    $RecoveryPath = [string] ((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
+    if ($RecoveryPath -eq '') {
+        Write-Warning "RE分區無法啟用"; return
+    }
+    
     $DiskNum = (([regex]('\\harddisk([0-9]+)\\')).Matches($RecoveryPath)).Groups[1].Value
     $PartNum = (([regex]('\\partition([0-9]+)\\')).Matches($RecoveryPath)).Groups[1].Value
     $Part    = Get-Partition -DiskNumber $DiskNum -PartitionNumber $PartNum
