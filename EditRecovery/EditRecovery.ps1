@@ -89,7 +89,7 @@ function EditRecovery {
             $Capacity = FormatCapacity ($Part.Size)
             # 驗證
             if (!$Part) {
-                Write-Error "錯誤:: 找不到RE修復分區" -EA:Stop
+                Write-Error "錯誤:: 找不到RE修復分區, 可能是RE分區尚未啟用" -EA:Stop
             } else {
                 if ($Part.DriveLetter -eq "C") {
                     Write-Warning "RE分區已經合併到C曹不需要再次執行"; return
