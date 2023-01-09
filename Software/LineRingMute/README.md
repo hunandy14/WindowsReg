@@ -27,8 +27,8 @@ irm bit.ly/LineMute|iex; LineRingMute -Disable
 
 ```ps1
 # 關閉自動更新
-irm bit.ly/LineUpdate|iex; LineRingMute -Disable
+irm bit.ly/LineMute|iex; LineUpdate -Disable
 
 # 恢復自動更新
-irm bit.ly/LineUpdate|iex; LineRingMute -Enable
+irm bit.ly/LineMute|iex; LineUpdate -Enable
 ```
