@@ -110,7 +110,8 @@ function EditRecovery {
             $Part|Remove-Partition
             # 合併釋放的空間到前一個分區
             $PartPre = Get-Partition -DiskNumber $DiskNum -PartitionNumber ($PartNum-1)
-            $PartPre|Resize-Partition -Size:($PartPre|Get-PartitionSupportedSize).SizeMax
+            $ReSize = (($PartPre|Get-PartitionSupportedSize).SizeMax) - 1048576
+            $PartPre|Resize-Partition -Size:$ReSize
         }
         # 重啟RE分區
         if ($Enable) {
