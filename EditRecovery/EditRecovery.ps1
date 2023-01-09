@@ -122,6 +122,13 @@ function EditRecovery {
             $PartPre = Get-Partition -DiskNumber $DiskNum -PartitionNumber ($PartNum-1)
             $ReSize = (($PartPre|Get-PartitionSupportedSize).SizeMax) - 1048576
             $PartPre|Resize-Partition -Size:$ReSize
+            # 確認
+            if (Get-Partition -DiskNumber $DiskNum -PartitionNumber $PartNum -EA:0) {
+                if (((($PartPre|Get-PartitionSupportedSize).SizeMax) - 1048576) -eq 0) {
+                    Write-Host "已成功移除RE分區並合併空閒空間到前方曹位"; return
+                } Write-Host "已成功移除RE分區但合併失敗, 請手動處理尚未合併的空閒空間"; return
+            }
+            return
         }
         # 重啟RE分區
         if ($Enable) {
