@@ -2,16 +2,10 @@
 # 獲取RE分區
 function Get-RecoveryPartition {
     [string] $RecoveryPath = ((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
-    if ($RecoveryPath -eq '') {
-        Write-Host "RE分區尚未啟用" -ForegroundColor:Yellow
-        return $false
-    }
+    if ($RecoveryPath -eq '') { Write-Warning "RE分區尚未啟用"; return }
     $DiskNum = (([regex]('\\harddisk([0-9]+)\\')).Matches($RecoveryPath)).Groups[1].Value
     $PartNum = (([regex]('\\partition([0-9]+)\\')).Matches($RecoveryPath)).Groups[1].Value
     $Part    = Get-Partition -DiskNumber $DiskNum -PartitionNumber $PartNum
-
-    if (!$Part) { Write-Error "錯誤:: 找不到RE修復分區" -EA:Stop }
-    if ($Part.DriveLetter -eq "C") { Write-Warning "RE分區已經刪除不需要再次執行"; Exit 1 }
     
     return [PSCustomObject]@{
         DiskNumber        = $DiskNum
@@ -93,6 +87,14 @@ function EditRecovery {
             $PartNum = $RecObj.PartitionNumber
             $Part    = $RecObj.RecoveryPartition
             $Capacity = FormatCapacity ($Part.Size)
+            # 驗證
+            if (!$Part) {
+                Write-Error "錯誤:: 找不到RE修復分區" -EA:Stop
+            } else {
+                if ($Part.DriveLetter -eq "C") {
+                    Write-Warning "RE分區已經合併到C曹不需要再次執行"; return
+                }
+            }
             # 刪除RE分區(警告)
             ($Part|Get-Disk|Get-Partition) |Format-Table PartitionNumber,@{Name='DriveLetter'; Expression={if($_.DriveLetter){$_.DriveLetter}else{" "}}; Align='right'},@{Name='Size    '; Expression={$(FormatCapacity $_.Size -Align)}; Align='right'},Type -AutoSize
             Write-Host "即將刪除 [" -NoNewline
@@ -104,7 +106,7 @@ function EditRecovery {
                 $response = Read-Host "  沒有異議請輸入Y (Y/N) ";
                 if ($response -ne "Y" -or $response -ne "Y") { Write-Host "使用者中斷" -ForegroundColor:Red; return; }
             }
-            # 關閉RE分區
+            # 關閉RE系統
             reagentc /disable
             # 移除RE分區
             $Part|Remove-Partition
