@@ -118,15 +118,17 @@ function EditRecovery {
             reagentc /disable
             # 移除RE分區
             $Part|Remove-Partition
-            # 合併釋放的空間到前一個分區
-            $PartPre = Get-Partition -DiskNumber $DiskNum -PartitionNumber ($PartNum-1)
-            $ReSize = (($PartPre|Get-PartitionSupportedSize).SizeMax) - 1048576
-            $PartPre|Resize-Partition -Size:$ReSize
-            # 確認
-            if (Get-Partition -DiskNumber $DiskNum -PartitionNumber $PartNum -EA:0) {
-                if (((($PartPre|Get-PartitionSupportedSize).SizeMax) - 1048576) -eq 0) {
-                    Write-Host "已成功移除RE分區並合併空閒空間到前方曹位"; return
-                } Write-Host "已成功移除RE分區但合併失敗, 請手動處理尚未合併的空閒空間"; return
+            if (!(Get-Partition -DiskNumber $DiskNum -PartitionNumber $PartNum -EA:0)) {
+                # 確認
+                Write-Host "已成功移除RE分區, 正在嘗試合併空閒空間..."
+                # 合併釋放的空間到前一個分區
+                $PartPre = Get-Partition -DiskNumber $DiskNum -PartitionNumber ($PartNum-1)
+                $ReSize  = (($PartPre|Get-PartitionSupportedSize).SizeMax) - 1048576
+                $PartPre | Resize-Partition -Size:$ReSize
+                # 確認
+                if ((Get-Partition -DiskNumber $DiskNum -PartitionNumber ($PartNum-1)).Size -eq $ReSize) {
+                    Write-Host "空閒空間合併完成"
+                } else { Write-Host "空間合併失敗, 請手動合併剩餘空間" }
             }
             return
         }
