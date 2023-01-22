@@ -47,7 +47,7 @@ function Setting_User {
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{645FF040-5081-101B-9F08-00AA002F954E}" /t REG_DWORD /d 0 /f
     if ((Get-Process -ProcessName:'explorer' -ErrorAction:SilentlyContinue)) { Stop-Process -ProcessName:'explorer' }
 
-    # NumLock
+    # 開機時自動打開鍵盤 NumLock 燈號
     if ($env:USERNAME -ne 'SYSTEM') {
         $UserSID  = (Get-LocalUser $env:USERNAME).sid.value
         reg add "HKEY_USERS\$UserSID\Control Panel\Keyboard" /v "InitialKeyboardIndicators" /t REG_SZ /d 2 /f
@@ -67,6 +67,9 @@ function Setting_User {
     
     # rdp遠端桌面連線啟用60fps
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations" /v "DWMFRAMEINTERVAL" /t REG_DWORD /d 15 /f
+    
+    # 禁止Edge更新時在桌面建立捷徑
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\EdgeUpdate" /v "CreateDesktopShortcut{56EB18F8-B008-4CBD-B6D2-8C97FE7E9062}" /t REG_DWORD /d 0 /f
 }
 # ==================================================================================================
 # 個人用設定
