@@ -81,13 +81,13 @@ irm bit.ly/SetInstantGo|iex; InstantGo -Info
 ### Windows UAC
 ```ps1
 # 不要把桌面變黑
-irm bit.ly/3Gca80R|iex; SetUAC -Set:1
+irm bit.ly/SetWinUAC|iex; SetUAC -Set:1
 
 # 關閉提醒
-irm bit.ly/3Gca80R|iex; SetUAC -Set:0
+irm bit.ly/SetWinUAC|iex; SetUAC -Set:0
 
 # 恢復預設
-irm bit.ly/3Gca80R|iex; SetUAC -Default
+irm bit.ly/SetWinUAC|iex; SetUAC -Default
 
 ```
 
