@@ -128,8 +128,11 @@ function EditRecovery {
                 # 確認
                 if ((Get-Partition -DiskNumber $DiskNum -PartitionNumber ($PartNum-1)).Size -eq $ReSize) {
                     Write-Host "空閒空間合併完成"
-                } else { Write-Host "空間合併失敗, 請手動合併剩餘空間" }
+                } else { Write-Warning "空間合併失敗, 請手動合併剩餘空間" }
             }
+            # 重新開啟RE系統
+            reagentc /enable
+            reagentc /info
             return
         }
         # 重啟RE分區
