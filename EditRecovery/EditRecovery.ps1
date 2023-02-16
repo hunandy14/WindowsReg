@@ -70,9 +70,9 @@ function EditRecovery {
         [Parameter(Position = 0, ParameterSetName = "Remove")]
         [switch] $Remove,
         [Parameter(Position = 0, ParameterSetName = "Disable")]
+        [Parameter(Position = 1, ParameterSetName = "Remove")]
         [switch] $Disable,
         [Parameter(Position = 0, ParameterSetName = "Enable")]
-        [Parameter(Position = 1, ParameterSetName = "Remove")]
         [switch] $Enable,
         [Parameter(Position = 0, ParameterSetName = "SetReImgPath")]
         [switch] $SetReImg,
@@ -83,10 +83,6 @@ function EditRecovery {
     if ($Info) {
         reagentc /info
     } else {
-        # 關閉RE分區
-        if ($Disable) {
-            reagentc /disable
-        }
         # 刪除RE分區
         if ($Remove) {
             $RecObj = Get-RecoveryPartition
@@ -131,14 +127,21 @@ function EditRecovery {
                 } else { Write-Warning "空間合併失敗, 請手動合併剩餘空間" }
             }
             # 重新開啟RE系統
-            reagentc /enable
-            reagentc /info
+            if (!$Disable) {
+                reagentc /enable
+            } reagentc /info
             return
         }
         # 重啟RE分區
         if ($Enable) {
             reagentc /enable
+            return
+        # 關閉RE分區
+        } elseif ($Disable) {
+            reagentc /disable
+            return
         }
+        
         # 設定路徑
         if ($SetReImg) {
             $Path='C:\windows\system32\recovery'
@@ -153,6 +156,7 @@ function EditRecovery {
             }
             reagentc /setreimage /path $Path
             reagentc /enable
+            return
         }
     }
 }
