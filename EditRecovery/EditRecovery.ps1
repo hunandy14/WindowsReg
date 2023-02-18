@@ -40,12 +40,17 @@ function Get-RecoveryPartition {
 # 格式化容量單位
 function FormatCapacity {
     param (
+        # 容量大小
         [Parameter(Position = 0, ParameterSetName = "")]
         [double] $Value = 0,
+        # 小數點位數
         [Parameter(Position = 1, ParameterSetName = "")]
         [double] $Digit = 1,
+        # 取到特定單位
+        [Parameter(ParameterSetName = "")]
         [switch] $KB,
-
+        [switch] $MB,
+        # 格式化固定位寬
         [Parameter(ParameterSetName = "")]
         [uint64] $Width = 5,
         [switch] $Align
@@ -57,10 +62,10 @@ function FormatCapacity {
    
     # 開始換算
     foreach ($Item in $UnitList) {
-        $bool = (([Math]::Floor($Value)|Measure-Object -Character).Characters -gt 3)
-        if ($bool -or $KB) {
+        if ((([Math]::Floor($Value)|Measure-Object -Character).Characters -gt 3)) {
             $Value = $Value/$Unit; $Unit_Type = $Item
-            if ($KB) { break }
+            if ($KB -and ($Item -eq 'KB')) { break }
+            if ($MB -and ($Item -eq 'MB')) { break }
         } else { break }
     }; $Value = [Math]::Round($Value, $Digit)
 
@@ -72,7 +77,7 @@ function FormatCapacity {
         if ($SpaceCount -gt 0) { (1..$SpaceCount)|ForEach-Object{ $Space += " " } }
     }
     return ($Space + "$Value $Unit_Type")
-} # FormatCapacity 18915618941
+} # FormatCapacity 18915618941 -MB
 
 
 
