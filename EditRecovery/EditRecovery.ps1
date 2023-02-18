@@ -1,42 +1,3 @@
-
-# 獲取RE分區
-function Get-RecoveryPartition {
-    [CmdletBinding(DefaultParameterSetName = "Default")]
-    param (
-        [Parameter(Position = 0, ParameterSetName = "Default")]
-        [String] $DriveLetter,
-        [Parameter(ParameterSetName = "CurrentlyUsed")]
-        [switch] $CurrentlyUsed
-    )
-    # 指定磁碟機中所有RE分區
-    if ($DriveLetter) {
-        $Dri = Get-Partition -DriveLetter $DriveLetter -EA 0
-        if ($Dri) {
-            return $Dri |Get-Disk|Get-Partition |Where-Object{ # ((GPT修復分區 -or MBR修復分區) -and 空磁碟標籤)
-                (($_.Type -eq 'Recovery') -or ($_.MbrType -eq 39)) -and ((($_|Get-Volume).FileSystemLabel) -eq "")
-            }
-        } else { return $Null }
-    } else { $CurrentlyUsed = $true }
-    # 當前系統使用中的RE分區
-    if ($CurrentlyUsed) {
-        # 確認啟用狀態
-        $RecoveryPath = [string]((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
-        if ($RecoveryPath -eq '') {
-            Write-Host "RE分區尚未啟用, 嘗試啟用中... " -NoNewline
-            (reagentc /enable) |Out-Null; (reagentc /enable) |Out-Null
-            # 重新確認啟用狀態
-            $RecoveryPath = [string]((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
-            if ($RecoveryPath -eq '') {
-                Write-Error "無法啟用"; return
-            } else { Write-Host "啟用成功" }
-        }
-        # 解析路徑並獲取分區物件
-        $DiskNum = (([regex]('\\harddisk([0-9]+)\\')).Matches($RecoveryPath)).Groups[1].Value
-        $PartNum = (([regex]('\\partition([0-9]+)\\')).Matches($RecoveryPath)).Groups[1].Value
-        return Get-Partition -DiskNumber $DiskNum -PartitionNumber $PartNum
-    }
-} # Get-RecoveryPartition
-
 # 格式化容量單位
 function FormatCapacity {
     param (
@@ -78,6 +39,109 @@ function FormatCapacity {
     }
     return ($Space + "$Value $Unit_Type")
 } # FormatCapacity 18915618941 -MB
+
+
+
+# 壓縮指定分區並創建新分區
+function CompressPartition {
+    param (
+        [Parameter(Position = 0, ParameterSetName = "")]
+        [String] $DriveLetter,
+        [Parameter(Position = 1, ParameterSetName = "")]
+        [Uint64] $Size,
+        [Parameter(ParameterSetName = "")]
+        [Switch] $Force # 強制把未分配空間合併到目標分區
+    )
+    # 獲取目標分區
+    $Dri = (Get-Partition -DriveLetter:$DriveLetter)
+    $PartArr = ($Dri|Get-Disk|Get-Partition)
+    # 檢查是否為最後一個分區 (因為中間分區Get-PartitionSupportedSize不會計算未分配空間)
+    if (($PartArr[-1]).UniqueId -eq $Dri.UniqueId){
+        $IsFinalPartition = $true
+    } else { 
+        $IsFinalPartition = $false
+        $PartIdx = 0; foreach ($Item in $PartArr) { if ($Item.UniqueId -eq $Dri.UniqueId) { break }; $PartIdx++ }
+        $NextPart = $PartArr[$PartIdx+1]
+    }
+    # 查詢與計算空間
+    $MinGapSize = 1048576
+    $SupSize = $Dri|Get-PartitionSupportedSize
+    $CurSize = $Dri.size
+    if ($IsFinalPartition) {
+        $MaxSize = $SupSize.SizeMax - $MinGapSize
+    } else { $MaxSize = $NextPart.Offset - $Dri.Offset - $MinGapSize }
+    $Unallocated = $MaxSize - $CurSize
+    $ReSize = 0
+
+    # 未使用空間不足需要重設大小
+    if ($Unallocated -lt $Size) {
+        $ReSize = $MaxSize - $Size
+        $CmpSize= $Size-$Unallocated
+        if ($CmpSize -lt $MinGapSize) {
+            $Size  += $MinGapSize-$CmpSize
+            $ReSize = $MaxSize - $Size
+            $CmpSize= $Size-$Unallocated
+        }
+        Write-Host "A, 壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3) [$(FormatCapacity $CurSize -Digit 3) -> $(FormatCapacity $ReSize -Digit 3)]"
+    # 剩下的未使用空間太少乾脆合併到前面
+    } elseif($Unallocated-$Size -lt 1GB) {
+        $Force = $true
+    } else {
+        Write-Host "未使用空間非常充足無須壓縮"
+    }
+    # 強制合併所有未分配空間到目標磁區
+    if ($Force) {
+        $ReSize = $MaxSize - $Size
+        $CmpSize= $Size-$Unallocated
+    }
+
+    # 壓縮分區
+    if ($ReSize -and ($ReSize -gt 0)) {
+        # Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3 -MB) [$(FormatCapacity $CurSize -Digit 3 -MB) -> $(FormatCapacity $ReSize -Digit 3 -MB)]"
+        Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3) [$(FormatCapacity $CurSize -Digit 3) -> $(FormatCapacity $ReSize -Digit 3)]"
+        # $Dri|Resize-Partition -Size:$ReSize
+    }
+} # CompressPartition B 0MB -Force
+
+
+
+# 獲取RE分區
+function Get-RecoveryPartition {
+    [CmdletBinding(DefaultParameterSetName = "Default")]
+    param (
+        [Parameter(Position = 0, ParameterSetName = "Default")]
+        [String] $DriveLetter,
+        [Parameter(ParameterSetName = "CurrentlyUsed")]
+        [switch] $CurrentlyUsed
+    )
+    # 指定磁碟機中所有RE分區
+    if ($DriveLetter) {
+        $Dri = Get-Partition -DriveLetter $DriveLetter -EA 0
+        if ($Dri) {
+            return $Dri |Get-Disk|Get-Partition |Where-Object{ # ((GPT修復分區 -or MBR修復分區) -and 空磁碟標籤)
+                (($_.Type -eq 'Recovery') -or ($_.MbrType -eq 39)) -and ((($_|Get-Volume).FileSystemLabel) -eq "")
+            }
+        } else { return $Null }
+    } else { $CurrentlyUsed = $true }
+    # 當前系統使用中的RE分區
+    if ($CurrentlyUsed) {
+        # 確認啟用狀態
+        $RecoveryPath = [string]((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
+        if ($RecoveryPath -eq '') {
+            Write-Host "RE分區尚未啟用, 嘗試啟用中... " -NoNewline
+            (reagentc /enable) |Out-Null; (reagentc /enable) |Out-Null
+            # 重新確認啟用狀態
+            $RecoveryPath = [string]((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
+            if ($RecoveryPath -eq '') {
+                Write-Error "無法啟用"; return
+            } else { Write-Host "啟用成功" }
+        }
+        # 解析路徑並獲取分區物件
+        $DiskNum = (([regex]('\\harddisk([0-9]+)\\')).Matches($RecoveryPath)).Groups[1].Value
+        $PartNum = (([regex]('\\partition([0-9]+)\\')).Matches($RecoveryPath)).Groups[1].Value
+        return Get-Partition -DiskNumber $DiskNum -PartitionNumber $PartNum
+    }
+} # Get-RecoveryPartition
 
 
 
@@ -182,4 +246,4 @@ function EditRecovery {
 # EditRecovery -SetReImg
 # EditRecovery -Enable
 # EditRecovery -Disable
-# EditRecovery -Remove -Enable
+# EditRecovery -Remove
