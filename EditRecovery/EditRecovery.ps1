@@ -1,24 +1,39 @@
 
 # 獲取RE分區
 function Get-RecoveryPartition {
-    $RecoveryPath = [string] ((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
-    if ($RecoveryPath -eq '') {
-        Write-Warning "RE分區尚未啟用, 嘗試啟用中..."
-        reagentc /enable
-    }
-    $RecoveryPath = [string] ((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
-    if ($RecoveryPath -eq '') {
-        Write-Warning "RE分區無法啟用"; return
-    }
-    
-    $DiskNum = (([regex]('\\harddisk([0-9]+)\\')).Matches($RecoveryPath)).Groups[1].Value
-    $PartNum = (([regex]('\\partition([0-9]+)\\')).Matches($RecoveryPath)).Groups[1].Value
-    $Part    = Get-Partition -DiskNumber $DiskNum -PartitionNumber $PartNum
-    
-    return [PSCustomObject]@{
-        DiskNumber        = $DiskNum
-        PartitionNumber   = $PartNum
-        RecoveryPartition = $Part
+    [CmdletBinding(DefaultParameterSetName = "Default")]
+    param (
+        [Parameter(Position = 0, ParameterSetName = "Default")]
+        [String] $DriveLetter,
+        [Parameter(ParameterSetName = "CurrentlyUsed")]
+        [switch] $CurrentlyUsed
+    )
+    # 指定磁碟機中所有RE分區
+    if ($DriveLetter) {
+        $Dri = Get-Partition -DriveLetter $DriveLetter -EA 0
+        if ($Dri) {
+            return $Dri |Get-Disk|Get-Partition |Where-Object{ # ((GPT修復分區 -or MBR修復分區) -and 空磁碟標籤)
+                (($_.Type -eq 'Recovery') -or ($_.MbrType -eq 39)) -and ((($_|Get-Volume).FileSystemLabel) -eq "")
+            }
+        } else { return $Null }
+    } else { $CurrentlyUsed = $true }
+    # 當前系統使用中的RE分區
+    if ($CurrentlyUsed) {
+        # 確認啟用狀態
+        $RecoveryPath = [string]((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
+        if ($RecoveryPath -eq '') {
+            Write-Host "RE分區尚未啟用, 嘗試啟用中... " -NoNewline
+            (reagentc /enable) |Out-Null; (reagentc /enable) |Out-Null
+            # 重新確認啟用狀態
+            $RecoveryPath = [string]((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
+            if ($RecoveryPath -eq '') {
+                Write-Error "無法啟用"; return
+            } else { Write-Host "啟用成功" }
+        }
+        # 解析路徑並獲取分區物件
+        $DiskNum = (([regex]('\\harddisk([0-9]+)\\')).Matches($RecoveryPath)).Groups[1].Value
+        $PartNum = (([regex]('\\partition([0-9]+)\\')).Matches($RecoveryPath)).Groups[1].Value
+        return Get-Partition -DiskNumber $DiskNum -PartitionNumber $PartNum
     }
 } # Get-RecoveryPartition
 
@@ -85,12 +100,11 @@ function EditRecovery {
     } else {
         # 刪除RE分區
         if ($Remove) {
-            $RecObj = Get-RecoveryPartition
             # 獲取RE分區位置
-            $DiskNum = $RecObj.DiskNumber
-            $PartNum = $RecObj.PartitionNumber
-            $Part    = $RecObj.RecoveryPartition
-            $Capacity = FormatCapacity ($Part.Size)
+            $Part    = Get-RecoveryPartition -CurrentlyUsed
+            $DiskNum = ($Part|Get-Disk).Number
+            $PartNum = $Part.PartitionNumber
+            $Capacity= FormatCapacity ($Part.Size)
             # 驗證
             if (!$Part) {
                 Write-Error "錯誤:: 找不到RE修復分區, 可能是RE分區尚未啟用" -EA:Stop
