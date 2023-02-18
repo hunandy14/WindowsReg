@@ -55,14 +55,14 @@ function CompressPartition {
     # 獲取目標分區
     $Dri = Get-Partition -DriveLetter:$DriveLetter -EA 0
     if (!$Dri) { Write-Error "找不到磁碟槽位 `"$DriveLetter`:\`", 輸入可能有誤" }
-    $PartArr = ($Dri|Get-Disk|Get-Partition)
+    $PartList = ($Dri|Get-Disk|Get-Partition)
     # 檢查是否為最後一個分區 (因為中間分區Get-PartitionSupportedSize不會計算未分配空間)
-    if (($PartArr[-1]).UniqueId -eq $Dri.UniqueId){
+    if (($PartList[-1]).UniqueId -eq $Dri.UniqueId){
         $IsFinalPartition = $true
     } else { 
         $IsFinalPartition = $false
-        $PartIdx = 0; foreach ($Item in $PartArr) { if ($Item.UniqueId -eq $Dri.UniqueId) { break }; $PartIdx++ }
-        $NextPart = $PartArr[$PartIdx+1]
+        $PartIdx = 0; foreach ($Item in $PartList) { if ($Item.UniqueId -eq $Dri.UniqueId) { break }; $PartIdx++ }
+        $NextPart = $PartList[$PartIdx+1]
     }
 
     # 查詢與計算空間
@@ -85,7 +85,7 @@ function CompressPartition {
     if ($CmpSize -and ($CmpSize -ne 0)) {
         Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3 -MB) [$(FormatCapacity $CurSize -Digit 3 -MB) -> $(FormatCapacity $ReSize -Digit 3 -MB)]"
         # Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3) [$(FormatCapacity $CurSize -Digit 3) -> $(FormatCapacity $ReSize -Digit 3)]"
-        # $Dri|Resize-Partition -Size:$ReSize
+        $Dri|Resize-Partition -Size:$ReSize
     } else {
         Write-Host "未使用空間充足無須壓縮"
     }
@@ -158,10 +158,11 @@ function EditRecovery {
         # 刪除RE分區
         if ($Remove) {
             # 獲取RE分區位置
-            $Part    = Get-RecoveryPartition -CurrentlyUsed
-            $DiskNum = ($Part|Get-Disk).Number
-            $PartNum = $Part.PartitionNumber
-            $Capacity= FormatCapacity ($Part.Size)
+            $Part     = Get-RecoveryPartition -CurrentlyUsed
+            $PartList = ($Part|Get-Disk|Get-Partition)
+            $DiskNum  = ($Part|Get-Disk).Number
+            $PartNum  = $Part.PartitionNumber
+            $Capacity = FormatCapacity ($Part.Size)
             # 驗證
             if (!$Part) {
                 Write-Error "錯誤:: 找不到RE修復分區, 可能是RE分區尚未啟用" -EA:Stop
@@ -182,34 +183,37 @@ function EditRecovery {
                 if ($response -ne "Y" -or $response -ne "Y") { Write-Host "使用者中斷" -ForegroundColor:Red; return; }
             }
             # 關閉RE系統
-            reagentc /disable
+            reagentc /disable |Out-Null
             # 移除RE分區
             $Part|Remove-Partition
             if (!(Get-Partition -DiskNumber $DiskNum -PartitionNumber $PartNum -EA:0)) {
-                # 確認
                 Write-Host "已成功移除RE分區, 正在嘗試合併空閒空間..."
-                # 合併釋放的空間到前一個分區
-                $PartPre = Get-Partition -DiskNumber $DiskNum -PartitionNumber ($PartNum-1)
-                $ReSize  = (($PartPre|Get-PartitionSupportedSize).SizeMax) - 1048576
-                $PartPre | Resize-Partition -Size:$ReSize
-                # 確認
-                if ((Get-Partition -DiskNumber $DiskNum -PartitionNumber ($PartNum-1)).Size -eq $ReSize) {
+            }
+            # 合併釋放的空間到前一個分區
+            $PartIdx = 0; foreach ($Item in $PartList) { if ($Item.UniqueId -eq $Part.UniqueId) { break }; $PartIdx++ }
+            if ($PartIdx -gt 0) {
+                $PrePart = $PartList[$PartIdx-1]
+                $PreSize = $PrePart.Size
+                CompressPartition -DriveLetter $PrePart.DriveLetter -Size 0MB -Force
+                if (($PrePart|Get-Partition).Size -ne $PreSize) {
                     Write-Host "空閒空間合併完成"
                 } else { Write-Warning "空間合併失敗, 請手動合併剩餘空間" }
             }
             # 重新開啟RE系統
             if (!$Disable) {
-                reagentc /enable
+                reagentc /enable |Out-Null
             } reagentc /info
             return
         }
         # 重啟RE分區
         if ($Enable) {
-            reagentc /enable
+            reagentc /enable |Out-Null
+            reagentc /info
             return
         # 關閉RE分區
         } elseif ($Disable) {
-            reagentc /disable
+            reagentc /disable |Out-Null
+            reagentc /info
             return
         }
         
@@ -226,7 +230,8 @@ function EditRecovery {
                 Copy-Item $ImgPath $Path
             }
             reagentc /setreimage /path $Path
-            reagentc /enable
+            reagentc /enable |Out-Null
+            reagentc /info
             return
         }
     }
