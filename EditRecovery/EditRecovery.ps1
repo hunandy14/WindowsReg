@@ -53,7 +53,8 @@ function CompressPartition {
         [Switch] $Force # 強制把未分配空間合併到目標分區
     )
     # 獲取目標分區
-    $Dri = (Get-Partition -DriveLetter:$DriveLetter)
+    $Dri = Get-Partition -DriveLetter:$DriveLetter -EA 0
+    if (!$Dri) { Write-Error "找不到磁碟槽位 `"$DriveLetter`:\`", 輸入可能有誤" }
     $PartArr = ($Dri|Get-Disk|Get-Partition)
     # 檢查是否為最後一個分區 (因為中間分區Get-PartitionSupportedSize不會計算未分配空間)
     if (($PartArr[-1]).UniqueId -eq $Dri.UniqueId){
@@ -63,6 +64,7 @@ function CompressPartition {
         $PartIdx = 0; foreach ($Item in $PartArr) { if ($Item.UniqueId -eq $Dri.UniqueId) { break }; $PartIdx++ }
         $NextPart = $PartArr[$PartIdx+1]
     }
+
     # 查詢與計算空間
     $MinGapSize = 1048576
     $SupSize = $Dri|Get-PartitionSupportedSize
@@ -71,37 +73,23 @@ function CompressPartition {
         $MaxSize = $SupSize.SizeMax - $MinGapSize
     } else { $MaxSize = $NextPart.Offset - $Dri.Offset - $MinGapSize }
     $Unallocated = $MaxSize - $CurSize
-    $ReSize = 0
+    $CmpSize = $Null
 
-    # 未使用空間不足需要重設大小
-    if ($Unallocated -lt $Size) {
-        $ReSize = $MaxSize - $Size
-        $CmpSize= $Size-$Unallocated
-        if ($CmpSize -lt $MinGapSize) {
-            $Size  += $MinGapSize-$CmpSize
-            $ReSize = $MaxSize - $Size
-            $CmpSize= $Size-$Unallocated
-        }
-        Write-Host "A, 壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3) [$(FormatCapacity $CurSize -Digit 3) -> $(FormatCapacity $ReSize -Digit 3)]"
-    # 剩下的未使用空間太少乾脆合併到前面
-    } elseif($Unallocated-$Size -lt 1GB) {
-        $Force = $true
-    } else {
-        Write-Host "未使用空間非常充足無須壓縮"
-    }
-    # 強制合併所有未分配空間到目標磁區
-    if ($Force) {
+    # 未分配空間扣除Size後小於1GB則重新分配 (Force強制分配)
+    if ((($Unallocated-$Size) -le 1GB) -or $Force) {
         $ReSize = $MaxSize - $Size
         $CmpSize= $Size-$Unallocated
     }
 
     # 壓縮分區
-    if ($ReSize -and ($ReSize -gt 0)) {
-        # Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3 -MB) [$(FormatCapacity $CurSize -Digit 3 -MB) -> $(FormatCapacity $ReSize -Digit 3 -MB)]"
-        Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3) [$(FormatCapacity $CurSize -Digit 3) -> $(FormatCapacity $ReSize -Digit 3)]"
+    if ($CmpSize -and ($CmpSize -ne 0)) {
+        Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3 -MB) [$(FormatCapacity $CurSize -Digit 3 -MB) -> $(FormatCapacity $ReSize -Digit 3 -MB)]"
+        # Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3) [$(FormatCapacity $CurSize -Digit 3) -> $(FormatCapacity $ReSize -Digit 3)]"
         # $Dri|Resize-Partition -Size:$ReSize
+    } else {
+        Write-Host "未使用空間充足無須壓縮"
     }
-} # CompressPartition B 0MB -Force
+} # CompressPartition C 0MB
 
 
 
