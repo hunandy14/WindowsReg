@@ -140,16 +140,18 @@ function New-RecoveryPartition {
     [CmdletBinding(DefaultParameterSetName = "")]
     param (
         [Parameter(ParameterSetName = "")]
-        [String] $DriveLetter = 'C',
+        [Uint64] $Size = 1024MB,
         [Parameter(ParameterSetName = "")]
-        [Uint64] $Size = 1024MB
+        [String] $CompressDriveLetter = 'C',
+        [Parameter(ParameterSetName = "")]
+        [Switch] $ReEnable
     )
     # 獲取目標分區
     $MinGapSize = 1048576
-    $Dri = Get-Partition -DriveLetter:$DriveLetter -EA 0
+    $Dri = Get-Partition -DriveLetter:$CompressDriveLetter -EA 0
     $DiskNumber = ($Dri|Get-Disk).DiskNumber
-    if (!$Dri) { Write-Error "找不到磁碟槽位 `"$DriveLetter`:\`", 輸入可能有誤" }
-    CompressPartition -DriveLetter $DriveLetter -Size $Size |Out-Null
+    if (!$Dri) { Write-Error "找不到磁碟槽位 `"$CompressDriveLetter`:\`", 輸入可能有誤" }
+    CompressPartition -DriveLetter $CompressDriveLetter -Size $Size |Out-Null
     $Size = $Size-$MinGapSize
     # 判斷磁碟型態
     $DiskType = ($Dri|Get-Disk).PartitionStyle
@@ -168,6 +170,8 @@ function New-RecoveryPartition {
             $RePart|Set-Partition -MbrType 39
         } else { return $Null}
     }
+    # 重新啟用RE系統
+    if ($ReEnable) { reagentc /disable |Out-Null; reagentc /enable |Out-Null; reagentc /info |Out-Null }
     return ($RePart|Get-Partition)
 } # New-RecoveryPartition -Size 1024MB
 # reagentc /disable |Out-Null; reagentc /enable |Out-Null; reagentc /info
