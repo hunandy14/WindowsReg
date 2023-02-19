@@ -42,7 +42,7 @@ function FormatCapacity {
 
 
 
-# 壓縮指定分區並創建新分區
+# 壓縮指定分區
 function CompressPartition {
     param (
         [Parameter(Position = 0, ParameterSetName = "")]
@@ -75,8 +75,8 @@ function CompressPartition {
     $Unallocated = $MaxSize - $CurSize
     $CmpSize = $Null
 
-    # 未分配空間扣除Size後小於1GB則重新分配 (Force強制分配)
-    if ((($Unallocated-$Size) -le 1GB) -or $Force) {
+    # 未分配空間扣除Size後小於特定大小則重新分配
+    if ((($Unallocated-$Size) -le 4GB) -or $Force) {
         $ReSize = $MaxSize - $Size
         $CmpSize= $Size-$Unallocated
     }
@@ -85,10 +85,12 @@ function CompressPartition {
     if ($CmpSize -and ($CmpSize -ne 0)) {
         Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3 -MB) [$(FormatCapacity $CurSize -Digit 3 -MB) -> $(FormatCapacity $ReSize -Digit 3 -MB)]"
         # Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3) [$(FormatCapacity $CurSize -Digit 3) -> $(FormatCapacity $ReSize -Digit 3)]"
-        $Dri|Resize-Partition -Size:$ReSize
+        $Dri|Resize-Partition -Size:$ReSize|Out-Null
+        return $true
     } else {
         Write-Host "未使用空間充足無須壓縮"
-    }
+        return $true
+    } return $false
 } # CompressPartition C 0MB
 
 
@@ -130,6 +132,45 @@ function Get-RecoveryPartition {
         return Get-Partition -DiskNumber $DiskNum -PartitionNumber $PartNum
     }
 } # Get-RecoveryPartition
+
+
+
+# 建立RE分區
+function New-RecoveryPartition {
+    [CmdletBinding(DefaultParameterSetName = "")]
+    param (
+        [Parameter(ParameterSetName = "")]
+        [String] $DriveLetter = 'C',
+        [Parameter(ParameterSetName = "")]
+        [Uint64] $Size = 1024MB
+    )
+    # 獲取目標分區
+    $MinGapSize = 1048576
+    $Dri = Get-Partition -DriveLetter:$DriveLetter -EA 0
+    $DiskNumber = ($Dri|Get-Disk).DiskNumber
+    if (!$Dri) { Write-Error "找不到磁碟槽位 `"$DriveLetter`:\`", 輸入可能有誤" }
+    CompressPartition -DriveLetter $DriveLetter -Size $Size |Out-Null
+    $Size = $Size-$MinGapSize
+    # 判斷磁碟型態
+    $DiskType = ($Dri|Get-Disk).PartitionStyle
+    if ($DiskType -eq "GPT") {
+        $RePart = ($Dri|New-Partition -Size $Size|Format-Volume -FileSystem:NTFS)|Get-Partition
+        if ($RePart) {
+            $DiskNumber      = ($RePart|Get-Disk).DiskNumber
+            $PartitionNumber = $RePart.PartitionNumber
+            $TypeID          = 'de94bba4-06d1-4d40-a16a-bfd50179d6ac'
+            $Attributes      = '0x8000000000000001'
+            "select disk $DiskNumber; select partition $PartitionNumber; set id=$TypeID override; gpt attributes=$Attributes" -split ";" |diskpart.exe |Out-Null
+        } else { return $Null}
+    } elseif ($DiskType -eq "MBR") {
+        $RePart = (($Dri|New-Partition -Size $Size)|Format-Volume)|Get-Partition
+        if ($RePart) {
+            $RePart|Set-Partition -MbrType 39
+        } else { return $Null}
+    }
+    return ($RePart|Get-Partition)
+} # New-RecoveryPartition -Size 1024MB
+# reagentc /disable |Out-Null; reagentc /enable |Out-Null; reagentc /info
 
 
 
@@ -194,8 +235,8 @@ function EditRecovery {
             if ($PartIdx -gt 0) {
                 $PrePart = $PartList[$PartIdx-1]
                 $PreSize = $PrePart.Size
-                CompressPartition -DriveLetter $PrePart.DriveLetter -Size 0MB -Force
-                if (($PrePart|Get-Partition).Size -ne $PreSize) {
+                $Fnished = CompressPartition -DriveLetter $PrePart.DriveLetter -Size 0MB -Force
+                if (($Fnished) -and ($PrePart|Get-Partition).Size -ne $PreSize) {
                     Write-Host "空閒空間合併完成"
                 } else { Write-Warning "空間合併失敗, 請手動合併剩餘空間" }
             }
