@@ -83,14 +83,14 @@ function CompressPartition {
 
     # 壓縮分區
     if ($CmpSize -and ($CmpSize -ne 0)) {
-        Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3 -MB) [$(FormatCapacity $CurSize -Digit 3 -MB) -> $(FormatCapacity $ReSize -Digit 3 -MB)]"
-        # Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3) [$(FormatCapacity $CurSize -Digit 3) -> $(FormatCapacity $ReSize -Digit 3)]"
+        # Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3 -MB) [$(FormatCapacity $CurSize -Digit 3 -MB) -> $(FormatCapacity $ReSize -Digit 3 -MB)]"
+        Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3) [$(FormatCapacity $CurSize -Digit 3) -> $(FormatCapacity $ReSize -Digit 3)]"
         $Dri|Resize-Partition -Size:$ReSize|Out-Null
-        return $true
+        return $Dri|Get-Partition
     } else {
         Write-Host "未使用空間充足無須壓縮"
-        return $true
-    } return $false
+        return $Dri|Get-Partition
+    } return $Null
 } # CompressPartition C 0MB
 
 
@@ -223,10 +223,6 @@ function EditRecovery {
             Write-Host "] 的RE分區, " -NoNewline
             Write-Host "刪除後無法復原" -ForegroundColor:Red -NoNewline
             Write-Host "請確保分區位置是正確的"
-            if (!$Force) {
-                $response = Read-Host "  沒有異議請輸入Y (Y/N) ";
-                if ($response -ne "Y" -or $response -ne "Y") { Write-Host "使用者中斷" -ForegroundColor:Red; return; }
-            }
             # 關閉RE系統
             reagentc /disable |Out-Null
             # 移除RE分區
@@ -239,8 +235,8 @@ function EditRecovery {
             if ($PartIdx -gt 0) {
                 $PrePart = $PartList[$PartIdx-1]
                 $PreSize = $PrePart.Size
-                $Fnished = CompressPartition -DriveLetter $PrePart.DriveLetter -Size 0MB -Force
-                if (($Fnished) -and ($PrePart|Get-Partition).Size -ne $PreSize) {
+                $PrePart = CompressPartition -DriveLetter $PrePart.DriveLetter -Size 0MB -Force
+                if (($PrePart) -and ($PrePart|Get-Partition).Size -ne $PreSize) {
                     Write-Host "空閒空間合併完成"
                 } else { Write-Warning "空間合併失敗, 請手動合併剩餘空間" }
             }
