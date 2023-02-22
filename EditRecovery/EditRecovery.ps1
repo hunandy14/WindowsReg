@@ -208,10 +208,9 @@ function Remove-RecoveryPartition {
         [Object] $Partition,
         [Parameter(ParameterSetName = "CurrentlyUsed")]
         [Switch] $CurrentlyUsed,
+        [Switch] $ForceEnable,
         [Parameter(ParameterSetName = "")]
-        [Switch] $Merage,
-        [Switch] $RestartRecovery,
-        [Switch] $ForceEnable
+        [Switch] $Merage
     )
     # 獲取RE系統的初始狀態
     $InitStatus = Get-RecoveryStatus
@@ -231,7 +230,7 @@ function Remove-RecoveryPartition {
         # 確認分區是否為當前RE系統使用中的分區
         if ((Get-RecoveryStatus)) {
             $CurrRePart = Get-RecoveryPartition -CurrentlyUsed
-            if ($CurrRePart.UniqueId -eq $Partition.UniqueId) { reagentc /disable|Out-Null }
+            if ($CurrRePart.UniqueId -eq $Partition.UniqueId) { reagentc /disable|Out-Null  }
         }
     }
     # 獲取分區索引
@@ -246,8 +245,11 @@ function Remove-RecoveryPartition {
     Write-Host "請確保分區位置是正確的"
     $Partition|Remove-Partition -ErrorAction Stop
     Write-Host "已成功移除RE分區" -ForegroundColor DarkGreen
-    # 重新啟動RE系統
-    if ($RestartRecovery -or $InitStatus) { reagentc /enable |Out-Null; reagentc /info }
+    # 恢復RE系統初始狀態
+    if ($InitStatus) {
+        if (!(Get-RecoveryStatus)) { reagentc /enable |Out-Null }
+        reagentc /info
+    }
     # 合併未分配容量到前方分區
     if ($Merage) {
         Write-Host "正在嘗試向前合併刪除後的未分配空間..."
