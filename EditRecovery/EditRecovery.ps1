@@ -213,6 +213,8 @@ function Remove-RecoveryPartition {
         [Switch] $RestartRecovery,
         [Switch] $ForceEnable
     )
+    # 獲取RE系統的初始狀態
+    $InitStatus = Get-RecoveryStatus
     # 獲取RE分區
     if ($CurrentlyUsed) { # 當前系統使用中RE分區
         $Partition = Get-RecoveryPartition -CurrentlyUsed:$CurrentlyUsed -ForceEnable:$ForceEnable
@@ -237,15 +239,15 @@ function Remove-RecoveryPartition {
     $PartIdx  = 0; foreach ($Item in $PartList) { if ($Item.UniqueId -eq $Partition.UniqueId) { break }; $PartIdx++ }
     # 刪除分區
     Get-Partition |Format-Table @{Name='Number'; Expression={$_.PartitionNumber}; Align='left'}, @{Name='Letter'; Expression={if($_.DriveLetter){$_.DriveLetter}else{" "}}; Align='left'}, @{Name='Size     '; Expression={$(FormatCapacity $_.Size -Align)}; Align='right'}, Type -AutoSize
-    Write-Host "即將刪除 [" -NoNewline
-    Write-Host "磁碟:$(($Partition|Get-Disk).Number), 分區:$($Partition.PartitionNumber), 容量:$(FormatCapacity $Partition.Size)" -ForegroundColor Yellow -NoNewline
+    Write-Host "即將刪除 磁碟:$(($Partition|Get-Disk).Number) [" -NoNewline
+    Write-Host "分區:$($Partition.PartitionNumber), 容量:$(FormatCapacity $Partition.Size)" -ForegroundColor Yellow -NoNewline
     Write-Host "] 的RE分區, " -NoNewline
     Write-Host "刪除後無法復原" -ForegroundColor:Red -NoNewline
     Write-Host "請確保分區位置是正確的"
     $Partition|Remove-Partition -ErrorAction Stop
     Write-Host "已成功移除RE分區" -ForegroundColor DarkGreen
     # 重新啟動RE系統
-    if ($RestartRecovery) { reagentc /disable |Out-Null; reagentc /enable |Out-Null; reagentc /info }
+    if ($RestartRecovery -or $InitStatus) { reagentc /enable |Out-Null; reagentc /info }
     # 合併未分配容量到前方分區
     if ($Merage) {
         Write-Host "正在嘗試向前合併刪除後的未分配空間..."
