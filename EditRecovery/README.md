@@ -1,33 +1,51 @@
-RE修復系統編輯工具
+WindwosRE系統 - 修復分區編輯工具
 ===
 
-![](img/Cover.png)
+![](img/Snipaste_2023-02-23_17-12-11.png)
 
-### 快速使用
-移除硬碟上的分區並自動合併剩餘空間到前一個磁碟區。
+## 快速使用
 
+刪除當前系統使用中的RE分區
 ```ps1
-irm bit.ly/EditRecovery|iex; EditRecovery -Remove
+irm bit.ly/EditRecovery|iex; Remove-RecoveryPartition -CurrentlyUsed -Merage -ForceEnable
 ```
 
-## 其他命令
+刪除所有RE分區
 ```ps1
-# 查看當前狀態
-EditRecovery -Info
-
-# 移除 Recovery 分區
-EditRecovery -Remove
-
-# 移除 Recovery 分區並關閉 RE 系統
-EditRecovery -Remove -Disable
-
-# 啟用 RE系統
-EditRecovery -Enable
-# 關閉 RE系統
-EditRecovery -Disable
-
-# 重設 Winre.wim 檔案
-EditRecovery -SetReImg
-# 重設 Winre.wim 檔案，並重新指定檔案
-EditRecovery -SetReImg -ImgPath:"D:\ImgPath"
+irm bit.ly/EditRecovery|iex; (Get-RecoveryPartition -S C) |ForEach {
+    $_|Remove-RecoveryPartition -Merage
+}
 ```
+
+建立RE新區
+```ps1
+irm bit.ly/EditRecovery|iex; New-RecoveryPartition -RestartRecovery
+```
+
+
+
+<br><br><br>
+
+## Remove-RecoveryPartition
+移除RE分區
+
+- -Partition  
+要移除的指定Partition物件
+- -CurrentlyUsed  
+選定當前系統使用中的RE分區移除
+- -Merage  
+移除完RE分區後自動將未分配空間合併到前方分區
+- -ForceEnable  
+如果RE系統沒有啟用則嘗試啟用 (若RE系統未啟用無法獲取分區)
+
+<br>
+
+## New-RecoveryPartition
+新增RE分區
+
+- -Size  
+新增的分區大小，預設是1024MB
+- -CompressDriveLetter  
+從哪個分區壓縮，預設是C槽
+- -RestartRecovery  
+新增完是否重新啟動RE分區
