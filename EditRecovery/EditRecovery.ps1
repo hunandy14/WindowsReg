@@ -108,6 +108,26 @@ function Get-RecoveryStatus {
     if ($RecoveryPath) { return $true } else { return $false }
 } # Get-RecoveryStatus
 
+# 設置RE系統狀態
+function Set-RecoveryStatus {
+    param (
+        [Parameter(Position = 0, ParameterSetName = "Status", Mandatory)]
+        [ValidateSet( 'Enable', 'Disable' )]
+        [String] $Status,
+        [Switch] $ShowInfo
+    )
+    # 獲取RE系統的初始狀態
+    $InitStatus = Get-RecoveryStatus
+    # 設置RE系統狀態
+    if ($Status -eq 'Enable') { # 啟用RE系統
+        if (!$InitStatus) { reagentc /Enable |Out-Null }
+    } elseif ($Status -eq 'Disable') { # 禁用RE系統
+        if ($InitStatus) { reagentc /Disable |Out-Null }
+    }
+    # 顯示設置後的狀態
+    if ($ShowInfo) { reagentc /Info |Format-Table }
+} # Set-RecoveryStatus -Status Enable
+
 # 判定是否為RE分區
 function IsRecoveryPartition {
     param (
@@ -126,7 +146,7 @@ function Get-RecoveryPartition {
         [Parameter(ParameterSetName = "CurrentlyUsed")]
         [switch] $CurrentlyUsed,
         [Parameter(ParameterSetName = "CurrentlyUsed")]
-        [switch] $ForceEnable
+        [switch] $ForceEnable # 查詢完會保持開啟狀態(維持返回物件與真實狀況的一致性)
     )
     # 指定磁碟機中所有RE分區
     if ($SystemLetter) {
@@ -142,7 +162,7 @@ function Get-RecoveryPartition {
         if ($RecoveryPath -eq '') {
             if ($ForceEnable) {
                 # 重新確認啟用狀態
-                Write-Host "RE分區尚未啟用, 嘗試啟用中... " -NoNewline
+                Write-Host "RE系統尚未啟用無法獲取分區位置, 嘗試啟用中... " -NoNewline
                 (reagentc /enable) |Out-Null; (reagentc /enable) |Out-Null
                 $RecoveryPath = [string]((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
                 if ($RecoveryPath -eq '') { Write-Error "無法啟用"; return } else { Write-Host "啟用成功" }
@@ -208,7 +228,7 @@ function Remove-RecoveryPartition {
         [Object] $Partition,
         [Parameter(ParameterSetName = "CurrentlyUsed")]
         [Switch] $CurrentlyUsed,
-        [Switch] $ForceEnable,
+        [Switch] $ForceEnable, # 刪除後不會保持啟動狀態(邏輯上是因為刪除了所以變成關閉狀態了)
         [Parameter(ParameterSetName = "")]
         [Switch] $Merage
     )
@@ -219,8 +239,8 @@ function Remove-RecoveryPartition {
         $Partition = Get-RecoveryPartition -CurrentlyUsed:$CurrentlyUsed -ForceEnable:$ForceEnable
         if (!$Partition) { Write-Warning "RE系統非啟用狀態 (請手動啟用後再執行,或追加 -ForceEnable 指令)"; return }
         if ($Partition.DriveLetter -eq "C") {
-            reagentc /info; Write-Warning "當前RE系統所使用的分區是系統分區, 無須刪除"; return
-        } else { reagentc /disable|Out-Null }
+            reagentc /Info |Format-Table; Write-Warning "當前RE系統所使用的分區是系統分區, 無須刪除"; return
+        } else { Set-RecoveryStatus -Status Disable }
     } else { # 使用者輸入的分區
         $Partition = $Partition|Get-Partition -EA 0
         if (!$Partition) { Write-Warning "輸入的分區物件無效"; return }
@@ -228,9 +248,8 @@ function Remove-RecoveryPartition {
         if (($Partition.Type -eq 'Recovery') -or ($Partition.MbrType -eq 39)) {
         } else { $Partition|Format-Table; Write-Warning "該分區不是修復分區"; return }
         # 確認分區是否為當前RE系統使用中的分區
-        if ((Get-RecoveryStatus)) {
-            $CurrRePart = Get-RecoveryPartition -CurrentlyUsed
-            if ($CurrRePart.UniqueId -eq $Partition.UniqueId) { reagentc /disable|Out-Null  }
+        if ((Get-RecoveryStatus)) { # 只在有啟用才確認, 關閉狀態不影響就不確認了
+            if ((Get-RecoveryPartition -CurrentlyUsed).UniqueId -eq $Partition.UniqueId) { Set-RecoveryStatus -Status Disable }
         }
     }
     # 獲取分區索引
@@ -246,10 +265,7 @@ function Remove-RecoveryPartition {
     $Partition|Remove-Partition -ErrorAction Stop
     Write-Host "已成功移除RE分區" -ForegroundColor DarkGreen
     # 恢復RE系統初始狀態
-    if ($InitStatus) {
-        if (!(Get-RecoveryStatus)) { reagentc /enable |Out-Null }
-        reagentc /info
-    }
+    if ($InitStatus) { Set-RecoveryStatus -Status Enable }
     # 合併未分配容量到前方分區
     if ($Merage) {
         Write-Host "正在嘗試向前合併刪除後的未分配空間..."
