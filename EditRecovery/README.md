@@ -22,6 +22,11 @@ irm bit.ly/EditRecovery|iex; (Get-RecoveryPartition -S C) |ForEach {
 irm bit.ly/EditRecovery|iex; New-RecoveryPartition -RestartRecovery
 ```
 
+重啟RE系統
+```ps1
+Reagentc -Disable |Out-Null; Reagentc -Enable |Out-Null; Reagentc /Info
+```
+
 
 
 <br><br><br>
