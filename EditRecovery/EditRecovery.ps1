@@ -252,9 +252,26 @@ function Remove-RecoveryPartition {
             if ((Get-RecoveryPartition -CurrentlyUsed).UniqueId -eq $Partition.UniqueId) { Set-RecoveryStatus -Status Disable }
         }
     }
+
     # 獲取分區索引
     $PartList = ($Partition|Get-Disk|Get-Partition)
     $PartIdx  = 0; foreach ($Item in $PartList) { if ($Item.UniqueId -eq $Partition.UniqueId) { break }; $PartIdx++ }
+    $PrePartIdx = $PartIdx -1
+    
+    # 檢測該RE分區是否為邏輯分區, 如果是則檢測是否可刪除
+    if (($PartIdx -gt 0)) {
+        $PrePart  = $PartList[$PrePartIdx]
+        if (($Partition|Get-Disk).PartitionStyle -eq 'MBR') {
+            if ($PrePart.PartitionNumber -eq 0) { # 前面有
+                $ExtendPartSize = $Partition.Offset - $PrePart.Offset
+                $PartitionSize = $Partition.Size / 1024
+                if (($ExtendPartSize - $PartitionSize) -le 1MB) {
+                    $DeleteExtendPart = $true # 該邏輯分區與刪除的目標分區大小一致, 可刪除邏輯分區
+                } else { $DeleteExtendPart = $false }
+            }
+        }
+    } else { $DeleteExtendPart = $null }
+
     # 刪除分區
     Get-Partition |Format-Table @{Name='Number'; Expression={$_.PartitionNumber}; Align='left'}, @{Name='Letter'; Expression={if($_.DriveLetter){$_.DriveLetter}else{" "}}; Align='left'}, @{Name='Size     '; Expression={$(FormatCapacity $_.Size -Align)}; Align='right'}, Type -AutoSize
     Write-Host "即將刪除 磁碟:$(($Partition|Get-Disk).Number) [" -NoNewline
@@ -262,15 +279,26 @@ function Remove-RecoveryPartition {
     Write-Host "] 的RE分區, " -NoNewline
     Write-Host "刪除後無法復原" -ForegroundColor:Red -NoNewline
     Write-Host "請確保分區位置是正確的"
-    $Partition|Remove-Partition -ErrorAction Stop
-    Write-Host "已成功移除RE分區" -ForegroundColor DarkGreen
+    # 移除分區
+    if ($DeleteExtendPart) {
+        $Partition|Remove-Partition -ErrorAction Stop
+        Write-Host "已成功移除RE分區..." -ForegroundColor DarkGreen
+        Write-Host "但檢測到該RE分區是邏輯分區, 且大小與延伸磁碟分區一致 (表示該延伸分區中沒有其他邏輯分區可安全移除)"
+        Write-Host "是否刪除延伸磁碟分區?" -ForegroundColor:Red
+        $PartList[$PrePartIdx]|Remove-Partition -ErrorAction Stop
+        $PrePartIdx = $PrePartIdx -1
+    } else {
+        $Partition|Remove-Partition -ErrorAction Stop
+        Write-Host "已成功移除RE分區" -ForegroundColor DarkGreen
+    }
+
     # 恢復RE系統初始狀態
     if ($InitStatus) { Set-RecoveryStatus -Status Enable }
     # 合併未分配容量到前方分區
     if ($Merage) {
         Write-Host "正在嘗試向前合併刪除後的未分配空間..."
         if (($PartIdx -gt 0)) {
-            $PrePart = $PartList[($PartIdx-1)]
+            $PrePart = $PartList[$PrePartIdx]
             if (!(IsRecoveryPartition $PrePart)) {
                 try {
                     $PrePart|CompressPartition 0 -OutNull -ErrorAction Stop|Format-Table
