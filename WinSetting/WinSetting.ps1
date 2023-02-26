@@ -69,7 +69,10 @@ function Setting_User {
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations" /v "DWMFRAMEINTERVAL" /t REG_DWORD /d 15 /f
     
     # 禁止Edge更新時在桌面建立捷徑
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\EdgeUpdate" /v "CreateDesktopShortcut{56EB18F8-B008-4CBD-B6D2-8C97FE7E9062}" /t REG_DWORD /d 0 /f
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\EdgeUpdate" /v "CreateDesktopShortcutDefault" /t REG_DWORD /d 0 /f
+    
+    # 關閉 Windwos 開機提示"讓我們完成你的電腦設定"的蓋板頁面
+    reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-310093Enabled" /t REG_DWORD /d 0 /f
 }
 # ==================================================================================================
 # 個人用設定
