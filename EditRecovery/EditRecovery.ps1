@@ -40,6 +40,32 @@ function FormatCapacity {
     return ($Space + "$Value $Unit_Type")
 } # FormatCapacity 18915618941 -MB
 
+# 獲取延伸分區中的邏輯分區
+function Get-ExtendedPartition {
+    param (
+        [Parameter(Position = 0, ParameterSetName = "")]
+        [Uint16] $DiskNumber = 0
+    )
+    $Part = Get-Partition -DiskNumber $DiskNumber
+    $Extend = $Part|Where-Object{$_.Type -match 'Extended'}
+    if ($Extend) {
+        $Begin  = $Extend.Offset
+        $End    = $Extend.Offset + $Extend.Size
+        $Result = $Part|Where-Object{($_.Offset -ge $Begin) -and ($_.Offset -lt $end) -and ($_.PartitionNumber -ne 0)}
+        return $Result
+    } else { return $Null }
+} # Get-ExtendedPartition
+
+# 判斷是否為邏輯分區 (延伸分區不算)
+function IsExtendedPartition {
+    param (
+        [Object] $Partition
+    )
+    $Extend = Get-ExtendedPartition
+    $Part = $Extend|Where-Object{($_.PartitionNumber -eq $Partition.PartitionNumber)}
+    if ($Part) { return $true } else { return $false }
+} # IsExtendedPartition (Get-Partition -DiskNumber 0 -PartitionNumber 0)
+
 # 壓縮指定分區
 function CompressPartition {
     [CmdletBinding(DefaultParameterSetName = "InputObject")]
@@ -97,9 +123,9 @@ function CompressPartition {
         return $Dri|Get-Partition
     } else {
         if (!$OutNull) { Write-Host "未使用空間充足無須壓縮" }
-        return $Dri|Get-Partition
+        return $False
     } return $Null
-} # CompressPartition C 0MB
+} # CompressPartition C 0MB -Force
 # (Get-Partition -DiskNumber 0 -PartitionNumber 2)|CompressPartition 0
 
 # 獲取RE系統當前狀態
@@ -258,19 +284,8 @@ function Remove-RecoveryPartition {
     $PartIdx  = 0; foreach ($Item in $PartList) { if ($Item.UniqueId -eq $Partition.UniqueId) { break }; $PartIdx++ }
     $PrePartIdx = $PartIdx -1
     
-    # 檢測該RE分區是否為邏輯分區, 如果是則檢測是否可刪除
-    if (($PartIdx -gt 0)) {
-        $PrePart  = $PartList[$PrePartIdx]
-        if (($Partition|Get-Disk).PartitionStyle -eq 'MBR') {
-            if ($PrePart.PartitionNumber -eq 0) { # 前面有
-                $ExtendPartSize = $Partition.Offset - $PrePart.Offset
-                $PartitionSize = $Partition.Size / 1024
-                if (($ExtendPartSize - $PartitionSize) -le 1MB) {
-                    $DeleteExtendPart = $true # 該邏輯分區與刪除的目標分區大小一致, 可刪除邏輯分區
-                } else { $DeleteExtendPart = $false }
-            }
-        }
-    } else { $DeleteExtendPart = $null }
+    # 檢測該RE分區是否為單一邏輯分區
+    if ((IsExtendedPartition $Partition) -and (@(Get-ExtendedPartition).Count -eq 1)) { $DeleteExtendPart = $true }
 
     # 刪除分區
     Get-Partition |Format-Table @{Name='Number'; Expression={$_.PartitionNumber}; Align='left'}, @{Name='Letter'; Expression={if($_.DriveLetter){$_.DriveLetter}else{" "}}; Align='left'}, @{Name='Size     '; Expression={$(FormatCapacity $_.Size -Align)}; Align='right'}, Type -AutoSize
@@ -283,8 +298,8 @@ function Remove-RecoveryPartition {
     if ($DeleteExtendPart) {
         $Partition|Remove-Partition -ErrorAction Stop
         Write-Host "已成功移除RE分區..." -ForegroundColor DarkGreen
-        Write-Host "但檢測到該RE分區是邏輯分區, 且大小與延伸磁碟分區一致 (表示該延伸分區中沒有其他邏輯分區可安全移除)"
-        Write-Host "是否刪除延伸磁碟分區?" -ForegroundColor:Red
+        Write-Host "但檢測到該RE分區是邏輯分區, 且該延伸分區內沒有其他邏輯分區"
+        Write-Host "是否刪除延伸磁碟分區? (若不刪除會無法合併到主分區)" -ForegroundColor:Red
         $PartList[$PrePartIdx]|Remove-Partition -ErrorAction Stop
         $PrePartIdx = $PrePartIdx -1
     } else {
@@ -301,7 +316,7 @@ function Remove-RecoveryPartition {
             $PrePart = $PartList[$PrePartIdx]
             if (!(IsRecoveryPartition $PrePart)) {
                 try {
-                    $PrePart|CompressPartition 0 -OutNull -ErrorAction Stop|Format-Table
+                    $PrePart|CompressPartition 0 -OutNull -Force -ErrorAction Stop|Format-Table
                 } catch { Write-Error "合併失敗, 請手動合併未分配空間"; return }
                 Write-Host "合併完成, 已合併到上記分區"
             } else { Write-Warning "無法合併, 前方分區是RE分區" }
