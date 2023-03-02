@@ -131,3 +131,17 @@ irm bit.ly/3tkkqIn|iex; netplwiz
 ```ps1
 irm bit.ly/39iuwmj|iex; InitialKeyboard -NumLock
 ```
+
+<br>
+
+### 家用版升級到專業版
+```ps1
+irm bit.ly/UpgradeWinPro|iex
+```
+
+<br>
+
+### 獲取筆電OEM授權序號
+```ps1
+(Get-WmiObject -Query 'Select * From SoftwareLicensingService').OA3xOriginalProductKey
+```
