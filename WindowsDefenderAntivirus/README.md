@@ -14,7 +14,7 @@ irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
 
 詳細說明
 ```ps1
-# 完整關閉 WindowsDefender (僅限專業版以上)
+# 完整關閉 WindowsDefender (僅限專業版以上, 且須重新啟動電腦才會生效)
 irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -Disable
 
 # 關閉即時掃描 (基本上就能避免 1. 砍你檔案 2. 阻擋執行非安全軟體)
@@ -24,7 +24,8 @@ irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
 irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus
 ```
 
-> 已知家用版無法關閉 WindowsDefender 會被強制恢復
+> 已知家用版無法完整關閉 WindowsDefender 會被強制恢復  
+> 家用版請選擇關閉即時掃描執行就好，至少這個是能關閉的  
 
 
 
