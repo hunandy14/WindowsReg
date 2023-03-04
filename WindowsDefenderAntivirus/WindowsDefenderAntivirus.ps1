@@ -29,7 +29,6 @@ function WindowsDefenderAntivirus {
             reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /f
         }
     }
-    if (!$NotOpenSetting) {
-        Start-Process windowsdefender://threat
-    }
+    # 打開 WindowsDefender 設定頁面
+    if (!$NotOpenSetting) { Start-Process WindowsDefender://ThreatSettings }
 } # WindowsDefenderAntivirus -DisableRealtime
