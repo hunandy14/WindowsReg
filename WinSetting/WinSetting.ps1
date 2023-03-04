@@ -93,6 +93,8 @@ function VM_Setting {
     reg add "HKEY_CURRENT_USER\Control Panel\UnsupportedHardwareNotificationCache" /v "SV2" /t REG_DWORD /d 0 /f
     # 系統設定
     Setting_System2
+    # 清除PowerShell歷史紀錄
+    Remove-Item (Get-PSReadlineOption).HistorySavePath -Force
 }
 function VM_Setting2 {
     # 虛擬機設定
