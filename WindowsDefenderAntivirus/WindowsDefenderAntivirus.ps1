@@ -76,19 +76,21 @@ function Set-WinDefender {
     if (!$Status) {
     } elseif ($StatusIdx -eq 0) { # RestoreDefault
         Remove-Item "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender"
-        Write-Host "已恢復設定值到預設狀態"
+        Write-Host "已將 Windows Defender 所有設定值恢復到預設狀態"
     } elseif ($StatusIdx -eq 1) { # Revert
         Remove-Registry "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" DisableRealtimeMonitoring -DeleteEmptyKey
+        Remove-Registry "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" ServiceKeepAlive
         Remove-Registry "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" DisableAntiSpyware
-        Write-Host "已恢復程序帶來的所有變動"
+        Write-Host "已將程序變更過的登錄檔設定值恢復到預設狀態"
     } elseif ($StatusIdx -eq 2) { # DisableAntiSpyware
         reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /f /v DisableRealtimeMonitoring /t REG_DWORD /d 1 |Out-Null
+        reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" /f /v ServiceKeepAlive /t REG_DWORD /d 0 |Out-Null
         reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" /f /v DisableAntiSpyware /t REG_DWORD /d 1 |Out-Null
-        Write-Host "已關閉防毒軟體, 但新版 Windows 需要手動關閉 `"竄改防護`" 才會生效。" -ForegroundColor:Yellow
+        Write-Host "已關閉【防毒軟體】, 但新版 Windows 需要手動關閉 `"竄改防護`" 才會生效。" -ForegroundColor:Yellow
         Write-Host "  - 圖文說明可以參考作者網站說明 https://bit.ly/3sAmHhC"
     } elseif ($StatusIdx -eq 3) { # DisableRealtimeMonitoring
         reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /f /v DisableRealtimeMonitoring /t REG_DWORD /d 1 |Out-Null
-        Write-Host "已關閉即時掃描, 但新版 Windows 需要手動關閉 `"竄改防護`" 才會生效。" -ForegroundColor:Yellow
+        Write-Host "已關閉【即時掃描】, 但新版 Windows 需要手動關閉 `"竄改防護`" 才會生效。" -ForegroundColor:Yellow
         Write-Host "  - 圖文說明可以參考作者網站說明 https://bit.ly/3sAmHhC"
     }
     # 打開 WindowsDefender 設定頁面
