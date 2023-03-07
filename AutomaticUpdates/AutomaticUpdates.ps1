@@ -47,15 +47,16 @@ function Remove-WinUpdateStorage {
 
 # 停用自動更新
 function StopWinUpdate {
+    [Alias("Set-WinUpdate")]
     param(
         [Parameter(ParameterSetName = "A")]
-        [switch] $Default,
+        [switch] $Default,  # 群組原則恢復預設
         [Parameter(ParameterSetName = "B")]
-        [switch] $Manual,
+        [switch] $Manual,   # 群組原則設定成手動
         [Parameter(ParameterSetName = "C")]
-        [switch] $NotCheck,
+        [switch] $NotCheck, # 群組原則設定成不更新
         [Parameter(ParameterSetName = "D")]
-        [switch] $Stop # 群組原則恢復預設
+        [switch] $Stop      # 關閉服務, 群組原則設定成手動
     )
     # 偵測版本
     if (((Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").EditionID) -eq 'Core') { $IsWindowsHome=$true }
@@ -70,9 +71,6 @@ function StopWinUpdate {
         Remove-Registry $key2 AUOptions -EA:0
         Remove-Registry $key2 NoAutoRebootWithLoggedOnUsers -EA:0
         Remove-Registry $key2 NoAutoUpdate -EA:0
-        Remove-Registry $key2 ScheduledInstallDay -EA:0
-        Remove-Registry $key2 ScheduledInstallEveryWeek -EA:0
-        Remove-Registry $key2 ScheduledInstallTime -EA:0
         Remove-EmptyRegistryKey $key2
         Remove-EmptyRegistryKey $key1
         # 啟動服務
@@ -88,10 +86,7 @@ function StopWinUpdate {
         if (!(Test-Path $regKey)) { New-Item $regKey -Force |Out-Null }
         New-ItemProperty $regKey 'AUOptions' -PropertyType:'DWord' -Value '00000002' -Force -EA:0 |Out-Null
         New-ItemProperty $regKey 'NoAutoRebootWithLoggedOnUsers' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
-        New-ItemProperty $regKey 'NoAutoUpdate' -PropertyType:'DWord' -Value '00000000' -Force -EA:0 |Out-Null
-        New-ItemProperty $regKey 'ScheduledInstallDay' -PropertyType:'DWord' -Value '00000000' -Force -EA:0 |Out-Null
-        New-ItemProperty $regKey 'ScheduledInstallEveryWeek' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
-        New-ItemProperty $regKey 'ScheduledInstallTime' -PropertyType:'DWord' -Value '00000003' -Force -EA:0 |Out-Null
+        Remove-Registry $key2 NoAutoUpdate -EA:0
         # 設置服務為手動
         Set-Service wuauserv -StartupType:Manual
         Stop-Service wuauserv
@@ -100,22 +95,19 @@ function StopWinUpdate {
     } elseif ($NotCheck) {
         # 家用版應對
         if ($IsWindowsHome) { Write-Warning "家用版無法透過群組原則設置手動更新，請使用 `"StopWinUpdate -Stop`" 停止更新"; return }
-        # 群組原則設定成手動
+        # 群組原則設定成不檢查更新
         $regKey = $Key2 -replace("^HKEY_","Registry::HKEY_")
         if (!(Test-Path $regKey)) { New-Item $regKey -Force |Out-Null }
         Remove-Registry $key2 AUOptions -EA:0
         New-ItemProperty $regKey 'NoAutoRebootWithLoggedOnUsers' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
         New-ItemProperty $regKey 'NoAutoUpdate' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
-        Remove-Registry $key2 ScheduledInstallDay -EA:0
-        Remove-Registry $key2 ScheduledInstallEveryWeek -EA:0
-        Remove-Registry $key2 ScheduledInstallTime -EA:0
         # 設置服務為手動
         Set-Service wuauserv -StartupType:Manual
         Stop-Service wuauserv
         Write-Host "已將更新設置為不檢查 (手動按下檢查後仍會自動下載並安裝)"
         return
     } elseif ($Stop) {
-        # 停用服務~
+        # 停用服務
         Set-Service wuauserv -StartupType:Disabled
         Stop-Service wuauserv; Start-Sleep 1
         while (!((Get-Service wuauserv).Status -eq "Stopped")) {
@@ -128,6 +120,12 @@ function StopWinUpdate {
             # if (Test-Path "C:\Windows\SoftwareDistribution\Download") { Remove-Item "C:\Windows\SoftwareDistribution\Download" -Recurse -Force; }
             New-Item "C:\Windows\SoftwareDistribution\Download" -ItemType:File |Out-Null
         }
+        # 群組原則設定成手動(防止服務誤啟動)
+        $regKey = $Key2 -replace("^HKEY_","Registry::HKEY_")
+        if (!(Test-Path $regKey)) { New-Item $regKey -Force |Out-Null }
+        New-ItemProperty $regKey 'AUOptions' -PropertyType:'DWord' -Value '00000002' -Force -EA:0 |Out-Null
+        New-ItemProperty $regKey 'NoAutoRebootWithLoggedOnUsers' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
+        Remove-Registry $key2 NoAutoUpdate -EA:0
         # 輸出信息
         Write-Host "已停用自動更新 (使用 `"StopWinUpdate -Default`" 命令可以恢復)"
         return

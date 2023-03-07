@@ -14,16 +14,16 @@ irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Manual
 
 ```ps1
 # 恢復預設值
-irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Default
+irm bit.ly/StopWinUpdate|iex; Set-WinUpdate -Default
 
 # 設定更新為手動(自動檢查)
-irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Manual
+irm bit.ly/StopWinUpdate|iex; Set-WinUpdate -Manual
 
 # 設定更新為不檢查
-irm bit.ly/StopWinUpdate|iex; StopWinUpdate -NotCheck
+irm bit.ly/StopWinUpdate|iex; Set-WinUpdate -NotCheck
 
 # 關閉自動更新
-irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Stop
+irm bit.ly/StopWinUpdate|iex; Set-WinUpdate -Stop
 ```
 
 <br><br><br>
