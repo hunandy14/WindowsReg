@@ -16,6 +16,8 @@ function Setting_System2{
     irm bit.ly/3GAuGRF|iex; StopWinUpdate -Stop
     # 關閉防毒
     irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
+    # 關閉索引服務 (sc.exe config wsearch start= delayed-auto|Out-Null; Start-Service WSearch)
+    Set-Service WSearch -StartupType:Disabled; Stop-Service WSearch
 }
 # 使用者設定::通常
 function Setting_User {
