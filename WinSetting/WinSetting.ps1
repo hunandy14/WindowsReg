@@ -91,6 +91,8 @@ function VM_Setting {
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" /v ExcludeWUDriversInQualityUpdate /t REG_DWORD /d 1 /f
     # 停用Windows 11桌面右下方「不符合系統需求」浮水印
     reg add "HKEY_CURRENT_USER\Control Panel\UnsupportedHardwareNotificationCache" /v "SV2" /t REG_DWORD /d 0 /f
+    # 阻止Microsoft Edge顯示「首次運行」歡迎頁面
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\MicrosoftEdge" /v "PreventFirstRunPage" /t REG_DWORD /d 1 /f
     # 系統設定
     Setting_System2
     # 清除PowerShell歷史紀錄
