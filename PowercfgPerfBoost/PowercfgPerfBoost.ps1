@@ -54,14 +54,14 @@ function Copy-PowercfgScheme {
 function Set-PerfBoost {
     [CmdletBinding(DefaultParameterSetName = "Value")]
     param (
-        [Parameter(Position = 0, ParameterSetName = "ValueMode", Mandatory)]
+        [Parameter(Position = 0, ParameterSetName = "StartupType", Mandatory)]
         [ValidateSet(
             'Disabled',           # 0. 已停用
             'Enabled',            # 1. 啟用
             'Aggressive',         # 2. 主動
             'EfficientEnabled',   # 3. 已啟用有效率
             'EfficientAggressive' # 4. 有效率地積極
-        )] [string] $ValueMode,
+        )] [string] $StartupType,
         [Parameter(Position = 0, ParameterSetName = "Value", Mandatory)]
         [ValidateSet(0,1,2,3,4)]
         [uint16] $Value,
@@ -78,11 +78,11 @@ function Set-PerfBoost {
         if (!$SchemeStr) { Write-Error "輸入的 GUID: `"$GUID`" 無效, 請輸入現有的電源計畫"; return $Null }
         $SchemeStr = $SchemeStr.Trim(" |*")
     }
-    $ModeTable = ((Get-Variable "ValueMode").Attributes.ValidValues)
-    if ($PsCmdlet.ParameterSetName -eq 'ValueMode') {
-        $Value = [array]::IndexOf($ModeTable, $ValueMode)
+    $ModeTable = ((Get-Variable "StartupType").Attributes.ValidValues)
+    if ($PsCmdlet.ParameterSetName -eq 'StartupType') {
+        $Value = [array]::IndexOf($ModeTable, $StartupType)
     } elseif ($PsCmdlet.ParameterSetName -eq 'Value') {
-        $ValueMode = $ModeTable[$Value]
+        $StartupType = $ModeTable[$Value]
     }
     # 設置"處理器效能提升模式"為可見
     (reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\be337238-0d82-4146-a960-4f3749d470c7" /v Attributes /t REG_DWORD /d 2 /f) | Out-Null
@@ -92,12 +92,16 @@ function Set-PerfBoost {
     # 輸出報告
     if ($SchemeStr) {
         $SchemeName = $SchemeStr -replace($SchemeStr.Substring(0, $SchemeStr.IndexOf(' GUID: ')+7+38)) -replace ("^\(|\)$")
-        Write-Host "處理器效能模式已設置為 `"$ValueMode`", (電源計畫: `"$SchemeName`")"
+        Write-Host "處理器效能模式已設置為 `"$StartupType`", (電源計畫: `"$SchemeName`")"
         if ($Apply) { Powercfg -setactive $GUID }
     }
 }
 # Set-PerfBoost -Apply
 # Set-PerfBoost 0
-# Set-PerfBoost Enabled
-# Set-PerfBoost Disabled (Copy-PowercfgScheme "關閉睿頻") -Apply
-# Set-PerfBoost Disabled -GUID:(Copy-PowercfgScheme "關閉睿頻" $Powercfg_Balanced) -Apply
+# Set-PerfBoost 1
+# Set-PerfBoost 2
+# Set-PerfBoost -StartupType Disabled
+# Set-PerfBoost -StartupType Enabled
+# Set-PerfBoost -StartupType Aggressive
+# Set-PerfBoost Disabled (CopyScheme "關閉睿頻") -Apply
+# Set-PerfBoost Disabled -GUID:(CopyScheme "關閉睿頻" $Powercfg_Balanced) -Apply
