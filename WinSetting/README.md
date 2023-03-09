@@ -22,5 +22,5 @@ edge://flags/#use-angle
 
 啟用KMS伺服器
 ```
-irm bit.ly/3GYlNBo|iex; WindowsActive kms..org
+irm bit.ly/3GYlNBo|iex; WindowsActiveKMS
 ```

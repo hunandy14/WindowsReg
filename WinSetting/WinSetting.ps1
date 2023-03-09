@@ -125,12 +125,28 @@ function Soft {
     choco install -y line
 }
 
-function WindowsActive {
+# 啟用WindwosKMS授權
+function WindowsActiveKMS {
     param (
-        [Parameter(Position = 0, ParameterSetName = "", Mandatory=$true)]
-        [string] $KMS
+        [Parameter(Position = 0, ParameterSetName = "", Mandatory)]
+        [string] $KmsHost,
+        [string] $ProductKey
     )
-    slmgr /ipk W269N-WFGWX-YVC9B-4J6C9-T83GX
-    slmgr /skms $KMS
-    slmgr /ato
-}
+    # 獲取序號
+    if (!$ProductKey) {
+        $Version = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion").EditionID
+        $KeyList = @{
+            Core         = 'TX9XD-98N7V-6WMQ6-BX7FG-H8Q99'
+            Professional = 'W269N-WFGWX-YVC9B-4J6C9-T83GX'
+            Education    = 'NW6C2-QMPVW-D7KKK-3GKT6-VCFB2'
+            Enterprise   = 'NPPR9-FWDCX-D2C8J-H872K-2YT43'
+        }; $Key = $KeyList.$Version
+    } else { $Key = $ProductKey }
+    # 啟用Windwos
+    if (!$Key) { Write-Host "此電腦的 Windows 版本不在清單內, 請使用 -ProductKey 輸入該版本對應的大量授權序號"; return } else {
+        cscript -nologo c:\windows\system32\slmgr.vbs -ipk $Key
+        cscript -nologo c:\windows\system32\slmgr.vbs -skms $KmsHost
+        cscript -nologo c:\windows\system32\slmgr.vbs -ato
+        cscript -nologo c:\windows\system32\slmgr.vbs -xpr
+    }
+} # WindowsActiveKMS
