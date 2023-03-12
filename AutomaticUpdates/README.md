@@ -3,7 +3,7 @@ Windows更新相關設置
 
 快速使用 (設定更新為手動)
 ```ps1
-irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Manual
+irm bit.ly/SetWinUpd|iex; Set-WinUpdate -Manual
 ```
 
 ![](img/UpdateManual.png)
@@ -14,23 +14,23 @@ irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Manual
 
 ```ps1
 # 恢復預設值
-irm bit.ly/StopWinUpdate|iex; Set-WinUpdate -Default
+irm bit.ly/SetWinUpd|iex; Set-WinUpdate -Default
 
 # 設定更新為手動(自動檢查)
-irm bit.ly/StopWinUpdate|iex; Set-WinUpdate -Manual
+irm bit.ly/SetWinUpd|iex; Set-WinUpdate -Manual
 
 # 設定更新為不檢查
-irm bit.ly/StopWinUpdate|iex; Set-WinUpdate -NotCheck
+irm bit.ly/SetWinUpd|iex; Set-WinUpdate -NotCheck
 
 # 關閉自動更新
-irm bit.ly/StopWinUpdate|iex; Set-WinUpdate -Stop
+irm bit.ly/SetWinUpd|iex; Set-WinUpdate -Stop
 ```
 
 <br><br><br>
 
 ## 刪除已下載的緩存
 ```PS1
-irm bit.ly/StopWinUpdate|iex; Remove-WinUpdateStorage
+irm bit.ly/SetWinUpd|iex; Remove-WinUpdateStorage
 ```
 
 > 點了但是反悔了不想安裝了，關機選單裡卡一個黃色驚嘆號要求可以用這個清掉
@@ -43,12 +43,12 @@ irm bit.ly/StopWinUpdate|iex; Remove-WinUpdateStorage
 
 ```ps1
 # 鎖定當前 Windows 版本
-irm bit.ly/StopWinUpdate|iex; LockWindowsVersion -Current
+irm bit.ly/SetWinUpd|iex; LockWindowsVersion -Current
 
 # 指定 Windows 版本
-irm bit.ly/StopWinUpdate|iex; LockWindowsVersion -Version:21H2
+irm bit.ly/SetWinUpd|iex; LockWindowsVersion -Version:21H2
 
 # 復原解鎖(之後想更新的話)
-irm bit.ly/StopWinUpdate|iex; LockWindowsVersion -Unlock
+irm bit.ly/SetWinUpd|iex; LockWindowsVersion -Unlock
 
 ```

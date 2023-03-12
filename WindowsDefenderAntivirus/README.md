@@ -14,21 +14,22 @@ irm bit.ly/SetWinDA|iex; Set-WinDefender DisableRealtimeMonitoring
 
 詳細說明
 ```ps1
-# 完整關閉 WindowsDefender (僅限專業版以上, 且須重新啟動電腦才會生效)
-irm bit.ly/SetWinDA|iex; Set-WinDefender DisableAntiSpyware
-
 # 關閉即時掃描 (基本上就能避免 1. 砍你檔案 2. 阻擋執行非安全軟體)
 irm bit.ly/SetWinDA|iex; Set-WinDefender DisableRealtimeMonitoring
 
-# 恢復到設置前
+# 完整關閉 WindowsDefender (該原則在Win2004以上重啟後會被復原)
+irm bit.ly/SetWinDA|iex; Set-WinDefender DisableAntiSpyware
+
+# 恢復程序對系統的變更
 irm bit.ly/SetWinDA|iex; Set-WinDefender Revert
 
-# 恢復到原廠預設
+# 恢復所有防毒設定到原廠設定
 irm bit.ly/SetWinDA|iex; Set-WinDefender RestoreDefault
 ```
 
-> 已知家用版無法完整關閉 WindowsDefender 會被強制恢復  
-> 家用版請選擇關閉即時掃描執行就好，至少這個是能關閉的  
+> 微軟在 Win2004 版已棄用 `完整關閉 WindowsDefender` 的原則  
+> 雖然還是可以關閉但是是一次性的, 關閉後過一段時間原則會被復原  
+> 雖然原則會被復原但 WindowsDefender 還是會保持關閉狀態, 直到重新啟動後才恢復  
 
 
 

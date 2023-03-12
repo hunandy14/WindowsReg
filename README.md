@@ -11,29 +11,35 @@ https://github.com/hunandy14/WindowsReg/issues
 
 ```ps1
 # 恢復預設值
-irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Default
+irm bit.ly/SetWinUpd|iex; Set-WinUpdate -Default
 
 # 設定更新為手動(自動檢查)
-irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Manual
+irm bit.ly/SetWinUpd|iex; Set-WinUpdate -Manual
 
 # 設定更新為不檢查
-irm bit.ly/StopWinUpdate|iex; StopWinUpdate -NotCheck
+irm bit.ly/SetWinUpd|iex; Set-WinUpdate -NotCheck
 
 # 關閉自動更新
-irm bit.ly/StopWinUpdate|iex; StopWinUpdate -Stop
+irm bit.ly/SetWinUpd|iex; Set-WinUpdate -Stop
+
+# 刪除已下載的緩存
+irm bit.ly/SetWinUpd|iex; Remove-WinUpdateStorage
 ```
 
 ### WindowsDefenderAntivirus
 
 ```ps1
-# 完整關閉 WindowsDefender
-irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -Disable
-
 # 關閉即時掃描 (基本上就能避免 1. 砍你檔案 2. 阻擋執行非安全軟體)
-irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
+irm bit.ly/SetWinDA|iex; Set-WinDefender DisableRealtimeMonitoring
 
-# 恢復預設
-irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus
+# 完整關閉 WindowsDefender (該原則在Win2004以上重啟後會被復原)
+irm bit.ly/SetWinDA|iex; Set-WinDefender DisableAntiSpyware
+
+# 恢復程序對系統的變更
+irm bit.ly/SetWinDA|iex; Set-WinDefender Revert
+
+# 恢復所有防毒設定到原廠設定
+irm bit.ly/SetWinDA|iex; Set-WinDefender RestoreDefault
 ```
 
 ### WindwosDriverUpdate
@@ -49,21 +55,21 @@ irm bit.ly/DisAMDUpdate|iex; DisableVideoDriverUpdate -Recovery
 
 ```ps1
 # 鎖定當前 Windows 版本
-irm bit.ly/StopWinUpdate|iex; LockWindowsVersion -Current
+irm bit.ly/SetWinUpd|iex; LockWindowsVersion -Current
 
 # 鎖定指定 Windows 版本
-irm bit.ly/StopWinUpdate|iex; LockWindowsVersion -Version:21H2
+irm bit.ly/SetWinUpd|iex; LockWindowsVersion -Version:21H2
 
 # 解除鎖定
-irm bit.ly/StopWinUpdate|iex; LockWindowsVersion -Unlock
+irm bit.ly/SetWinUpd|iex; LockWindowsVersion -Unlock
 ```
 
 ```ps1
 # 解除升級 Windows11 限制
-irm bit.ly/StopWinUpdate|iex; Win11_Update -Unlock
+irm bit.ly/SetWinUpd|iex; Win11_Update -Unlock
 
 # 還原升級 Windows11 限制
-irm bit.ly/StopWinUpdate|iex; Win11_Update -Recovery
+irm bit.ly/SetWinUpd|iex; Win11_Update -Recovery
 ```
 
 ### InstantGo
