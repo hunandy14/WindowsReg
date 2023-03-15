@@ -196,3 +196,16 @@ function Win11_Update {
         Write-Host "已還原CPU與TPM限制" -ForegroundColor:Yellow
     }
 } # Win11_Update -Unlock
+
+
+
+# 設定開發者測試通道
+function OfflineInsiderEnroll {
+    [Alias("Set-WinInsider")] param()
+    $Url  = 'https://raw.githubusercontent.com/abbodi1406/offlineinsiderenroll/master/OfflineInsiderEnroll.cmd'
+    $Path = $env:TEMP+ "\OfflineInsiderEnroll.cmd"
+    $AsAdmin = '@echo off & fltmc >nul || (set Admin=/x /d /c call "%~f0" %* & powershell -nop -c start cmd $env:Admin -verb runas; & exit /b)'
+    $Content = $AsAdmin + "`r`n" + (Invoke-RestMethod $Url).Trim("`r`n")
+    $Content | Set-Content $Path
+    cmd.exe /x /d /c call $Path
+} # OfflineInsiderEnroll

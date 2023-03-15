@@ -52,3 +52,10 @@ irm bit.ly/SetWinUpd|iex; LockWindowsVersion -Version:21H2
 irm bit.ly/SetWinUpd|iex; LockWindowsVersion -Unlock
 
 ```
+
+## 設定開發者測試通道
+```ps1
+# 設定開發者測試通道
+irm bit.ly/SetWinUpd|iex; OfflineInsiderEnroll
+
+```

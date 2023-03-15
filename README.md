@@ -65,11 +65,13 @@ irm bit.ly/SetWinUpd|iex; LockWindowsVersion -Unlock
 ```
 
 ```ps1
-# 解除升級 Windows11 限制
-irm bit.ly/SetWinUpd|iex; Win11_Update -Unlock
+# 設定開發者測試通道
+irm bit.ly/SetWinUpd|iex; OfflineInsiderEnroll
+```
 
-# 還原升級 Windows11 限制
-irm bit.ly/SetWinUpd|iex; Win11_Update -Recovery
+```ps1
+# 解除升級 Windows11 限制
+irm bit.ly/SkipTPM|iex
 ```
 
 ### InstantGo
