@@ -151,5 +151,5 @@ irm bit.ly/UpgradeWinPro|iex
 
 ### 獲取筆電OEM授權序號
 ```ps1
-(Get-WmiObject -Query 'Select * From SoftwareLicensingService').OA3xOriginalProductKey
+(Get-WmiObject SoftwareLicensingService).OA3xOriginalProductKey
 ```
