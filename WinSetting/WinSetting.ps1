@@ -95,6 +95,10 @@ function VM_Setting {
     reg add "HKEY_CURRENT_USER\Control Panel\UnsupportedHardwareNotificationCache" /v "SV2" /t REG_DWORD /d 0 /f
     # 阻止Microsoft Edge顯示「首次運行」歡迎頁面
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\MicrosoftEdge" /v "PreventFirstRunPage" /t REG_DWORD /d 1 /f
+    # 移除Edge未登錄狀態的紅點
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v "ExperimentationAndConfigurationServiceControl" /t REG_DWORD /d 0 /f
+    # 移除Edge右上角的Bing圖示
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "HubsSidebarEnabled" /t REG_DWORD /d 0 /f
     # 系統設定
     Setting_System2
     # 清除PowerShell歷史紀錄
