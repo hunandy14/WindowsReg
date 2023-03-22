@@ -18,6 +18,8 @@ function Setting_System2{
     irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
     # 關閉索引服務 (sc.exe config wsearch start= delayed-auto|Out-Null; Start-Service WSearch)
     Set-Service WSearch -StartupType:Disabled; Stop-Service WSearch
+    # 設定Windows密碼永不過期
+    Set-LocalUser -Name "$env:USERNAME" -PasswordNeverExpires 1
 }
 # 使用者設定::通常
 function Setting_User {
