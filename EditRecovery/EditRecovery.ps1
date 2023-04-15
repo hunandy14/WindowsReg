@@ -304,13 +304,18 @@ function Remove-RecoveryPartition {
         $PrePartIdx = $PrePartIdx -1
     } else {
         $Partition|Remove-Partition -ErrorAction Stop
-        Write-Host "已成功移除RE分區" -ForegroundColor DarkGreen
+        $RePartitionRemoved = !($Partition | Get-Partition -ErrorAction SilentlyContinue)
+        if ($RePartitionRemoved) {
+            Write-Host "已成功移除RE分區" -ForegroundColor DarkGreen
+        } else {
+            Write-Host "RE分區沒有被移除, 使用者拒絕了移除請求" -ForegroundColor Red
+        }
     }
 
     # 恢復RE系統初始狀態
     if ($InitStatus) { Set-RecoveryStatus -Status Enable }
     # 合併未分配容量到前方分區
-    if ($Merage) {
+    if ($Merage -and $RePartitionRemoved) {
         Write-Host "正在嘗試向前合併刪除後的未分配空間..."
         if (($PartIdx -gt 0)) {
             $PrePart = $PartList[$PrePartIdx]
@@ -325,3 +330,4 @@ function Remove-RecoveryPartition {
     return
 } # Remove-RecoveryPartition -CurrentlyUsed -Merage -ForceEnable
 # (Get-Partition -DiskNumber 0 -PartitionNumber 4)| Remove-RecoveryPartition -Merage
+# (Get-RecoveryPartition -S C) |ForEach-Object { $_|Remove-RecoveryPartition -Merage }
