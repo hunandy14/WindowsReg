@@ -3,19 +3,19 @@
 function Setting_System{
     # UAC 不要把桌面變黑
     irm bit.ly/SetWinUAC|iex; SetUAC -Set:1
-    # 設定成手動更新
-    irm bit.ly/3GAuGRF|iex; StopWinUpdate -Manual
+    # 設定更新為手動(自動檢查)
+    irm bit.ly/SetWinUpd|iex; Set-WinUpdate -Manual
     # 關閉及時掃描
-    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
+    irm bit.ly/SetWinDA|iex; Set-WinDefender DisableRealtimeMonitoring
 }
 # 系統設定::測試用虛擬機設定
 function Setting_System2{
     # 關閉 UAC
     irm bit.ly/SetWinUAC|iex; SetUAC -Set:0
-    # 設定成手動更新
-    irm bit.ly/3GAuGRF|iex; StopWinUpdate -Stop
-    # 關閉防毒
-    irm bit.ly/3GACH9d|iex; WindowsDefenderAntivirus -DisableRealtime
+    # 關閉自動更新
+    irm bit.ly/SetWinUpd|iex; Set-WinUpdate -Stop
+    # 關閉即時掃描
+    irm bit.ly/SetWinDA|iex; Set-WinDefender DisableRealtimeMonitoring
     # 關閉索引服務 (sc.exe config wsearch start= delayed-auto|Out-Null; Start-Service WSearch)
     Set-Service WSearch -StartupType:Disabled; Stop-Service WSearch
     # 設定Windows密碼永不過期
