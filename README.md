@@ -32,7 +32,7 @@ irm bit.ly/SetWinUpd|iex; Remove-WinUpdateStorage
 # 關閉即時掃描 (基本上就能避免 1. 砍你檔案 2. 阻擋執行非安全軟體)
 irm bit.ly/SetWinDA|iex; Set-WinDefender DisableRealtimeMonitoring
 
-# 完整關閉 WindowsDefender (該原則在Win2004以上重啟後會被復原)
+# 完整關閉 WindowsDefender
 irm bit.ly/SetWinDA|iex; Set-WinDefender DisableAntiSpyware
 
 # 恢復程序對系統的變更
