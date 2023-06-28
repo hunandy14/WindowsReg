@@ -113,18 +113,19 @@ function Set-WinDefender {
         Write-Host "已將 Windows Defender 所有設定值恢復到預設狀態"
     } elseif ($StatusIdx -eq 1) { # Revert
         Remove-Registry "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" DisableRealtimeMonitoring -DeleteEmptyKey
-        # Remove-Registry "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" ServiceKeepAlive
+        Remove-Registry "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" ServiceKeepAlive
         Remove-Registry "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" DisableAntiSpyware
         if ((Get-ScheduledTask | Where-Object {$_.TaskName -eq $TaskName})) { Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false }
         Write-Host "已將程序變更過的登錄檔設定值恢復到預設狀態"
     } elseif ($StatusIdx -eq 2) { # DisableAntiSpyware
-        # reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /f /v DisableRealtimeMonitoring /t REG_DWORD /d 1 |Out-Null
-        # reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" /f /v ServiceKeepAlive /t REG_DWORD /d 0 |Out-Null
+        reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /f /v DisableRealtimeMonitoring /t REG_DWORD /d 1 |Out-Null
+        reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" /f /v ServiceKeepAlive /t REG_DWORD /d 0 |Out-Null
         reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" /f /v DisableAntiSpyware /t REG_DWORD /d 1 |Out-Null
         $task = Register-TaskFromXml -TaskName $TaskName -Xml $Xml
         if ($task.taskName -ne $TaskName) { Write-Error "Error:: 工作排程註冊失敗" -ErrorAction Stop }
-        Write-Host "已關閉【防毒軟體】" -ForegroundColor:Yellow
-        Write-Host "  - 注意, 請務必保留作者的說明網站避免無法復原 https://bit.ly/3sAmHhC"
+        Write-Host "已關閉【防毒軟體】, 但新版 Windows 需要手動關閉 `"竄改防護`" 並重新啟動電腦才會生效。" -ForegroundColor:Yellow
+        Write-Host "  - 圖文說明可以參考作者網站說明 https://bit.ly/3sAmHhC"
+        Write-Host "  - 注意, 請務必保留作者的說明網站避免無法復原"
     } elseif ($StatusIdx -eq 3) { # DisableRealtimeMonitoring
         reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /f /v DisableRealtimeMonitoring /t REG_DWORD /d 1 |Out-Null
         Write-Host "已關閉【即時掃描】, 但新版 Windows 需要手動關閉 `"竄改防護`" 才會生效。" -ForegroundColor:Yellow
