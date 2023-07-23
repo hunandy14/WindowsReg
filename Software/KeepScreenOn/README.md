@@ -6,6 +6,11 @@
 irm raw.githubusercontent.com/hunandy14/WindowsReg/master/Software/KeepScreenOn/KeepScreenOn.ps1|iex; KeepScrOn
 ```
 
+不留痕跡的執行
+```ps1
+irm raw.githubusercontent.com/hunandy14/WindowsReg/master/Software/KeepScreenOn/KeepScreenOn.ps1|iex; Remove-Item (Get-PSReadlineOption).HistorySavePath; KeepScrOn
+```
+
 ## 快速使用2 (Num鍵閃爍)
 ```ps1
 irm bit.ly/KeepScrOn|iex; KeepScrOn2
