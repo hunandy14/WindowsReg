@@ -3,7 +3,7 @@
 
 ## 快速使用1 (滑鼠抖動)
 ```ps1
-irm bit.ly/KeepScrOn|iex; KeepScrOn
+irm raw.githubusercontent.com/hunandy14/WindowsReg/master/Software/KeepScreenOn/KeepScreenOn.ps1|iex; KeepScrOn
 ```
 
 ## 快速使用2 (Num鍵閃爍)
