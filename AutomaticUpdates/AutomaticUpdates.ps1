@@ -1,30 +1,58 @@
+# 測試登陸檔值是否存在
+function Test-Registry {
+    param(
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)][Alias("PSPath")]
+        [String] $Path,
+        [Parameter(Position = 1)]
+        [String] $Name,
+        [Switch] $PassThru
+    )
+    $RegPath = $Path -replace("^HKEY_", "Registry::HKEY_")
+    if (Test-Path $RegPath) {
+        $RegKey = Get-Item $RegPath
+        if ($Name) {
+            if ($RegKey.GetValue($Name)) {
+                if ($PassThru) {
+                    return Get-ItemProperty $RegPath $Name
+                } return $true
+            }
+        } else {
+            if ($PassThru) {
+                return $RegKey
+            } return $true
+        }
+    } return $false
+} # Test-Registry "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" AUOptions
+
 # 刪除空機碼
 function Remove-EmptyRegistryKey {
     param (
-        [Parameter(Position = 0, ParameterSetName = "", Mandatory)]
-        [string] $Key
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)][Alias("PSPath")]
+        [String] $Path
     )
-    $regKey = $Key -replace("^HKEY_","Registry::HKEY_")
-    if (Test-Path $regKey) {
-        if ((!(Get-ChildItem $regKey) -and !(Get-ItemProperty $regKey))) {
-            Remove-Item $regKey
+    $RegKey = $Path -replace("^HKEY_","Registry::HKEY_")
+    if (Test-Path $RegKey) {
+        if ((!(Get-ChildItem $RegKey) -and !(Get-ItemProperty $RegKey))) {
+            Remove-Item $RegKey
         }
     }
-} # Remove-EmptyRegistryKey "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
+} # Remove-EmptyRegistryKey "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"
 
 # 刪除機碼
 function Remove-Registry {
     param (
-        [Parameter(Position = 0, ParameterSetName = "", Mandatory)]
-        [string] $Key,
-        [Parameter(Position = 1, ParameterSetName = "")]
-        [object] $Name
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)][Alias("PSPath")]
+        [String] $Path,
+        [Parameter(Position = 1, Mandatory)]
+        [object] $Name,
+        [switch] $DeleteEmptyKey
     )
-    $regKey = $Key -replace("^HKEY_","Registry::HKEY_")
-    if (Get-ItemProperty -LiteralPath:$regKey $Name) { Remove-ItemProperty -LiteralPath:$regKey $Name }
-} 
-# reg add HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU /v AUOptions /t REG_DWORD /d 00000002 /f
-# Remove-Registry HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU AUOptions
+    $RegPath = $Path -replace("^HKEY_", "Registry::HKEY_")
+    if (Test-Registry $RegPath $Name) { Remove-ItemProperty $RegPath $Name }
+    if ($DeleteEmptyKey) { Remove-EmptyRegistryKey $RegPath }
+} # Remove-Registry 'HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU' AUOptions -DeleteEmptyKey
+
+
 
 
 
