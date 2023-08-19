@@ -10,12 +10,11 @@ irm bit.ly/SetWinUpd|iex; Set-WinUpdate -Manual
 
 <br><br><br>
 
+
+
 ## 設定 Windows 自動更新
 
 ```ps1
-# 恢復預設值
-irm bit.ly/SetWinUpd|iex; Set-WinUpdate -Default
-
 # 設定更新為手動(自動檢查)
 irm bit.ly/SetWinUpd|iex; Set-WinUpdate -Manual
 
@@ -24,6 +23,22 @@ irm bit.ly/SetWinUpd|iex; Set-WinUpdate -NotCheck
 
 # 關閉自動更新
 irm bit.ly/SetWinUpd|iex; Set-WinUpdate -Stop
+
+# 恢復預設值
+irm bit.ly/SetWinUpd|iex; Set-WinUpdate -Default
+```
+
+```ps1
+# 暫緩更新 90 天
+irm bit.ly/SetWinUpd|iex; Set-WUPause 90
+# 復原暫緩更新設置
+irm bit.ly/SetWinUpd|iex; Set-WUPause -RestoreDefault
+
+# 設定暫緩更新的範圍上限到 90 天
+irm bit.ly/SetWinUpd|iex; Set-WUPauseMax 90
+# 復原暫緩更新的範圍上限設置
+irm bit.ly/SetWinUpd|iex; Set-WUPauseMax -RestoreDefault
+
 ```
 
 <br><br><br>

@@ -166,6 +166,67 @@ function StopWinUpdate {
 
 
 
+# 設定延緩更新的可選範圍上限
+function Set-WinUpdatePauseMaxDays {
+    [Alias("Set-WUPauseMax")]
+    param (
+        [Parameter(Position = 0, ParameterSetName = "Days", Mandatory)]
+        [string] $Days,
+        [Parameter(ParameterSetName = "Default")]
+        [switch] $RestoreDefault
+    )
+    if ($RestoreDefault) {
+        Remove-Registry "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" "FlightSettingsMaxPauseDays"
+        Write-Host "已將延緩更新的可選範圍上限恢復為預設"
+    } else {
+        if ($Days -notmatch '^\d+$') { Write-Error "Error:: Days的輸入 '$Days' 有誤, 只能輸入正整數" -ErrorAction Stop }
+        REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /v "FlightSettingsMaxPauseDays" /t REG_DWORD /d $Days /f |Out-Null
+        Write-Host "已將延緩更新的可選範圍上限設置為 $Days 天"
+    }
+} # Set-WinUpdatePauseMaxDays -Days 90
+#  Set-WinUpdatePauseMaxDays -RestoreDefault
+
+
+
+# 延緩更新
+function Set-WinUpdatePause {
+    [Alias("Set-WUPause")]
+    param (
+        [Parameter(Position = 0, ParameterSetName = "Days", Mandatory)]
+        [string] $Days,
+        [Parameter(ParameterSetName = "RestoreDefault")]
+        [switch] $RestoreDefault
+    )
+    
+    if ($Days) {
+        if ($Days -notmatch '^\d+$') { Write-Error "Error:: Days的輸入 '$Days' 有誤, 只能輸入正整數" -ErrorAction Stop }
+        $startString = (Get-Date).ToString("yyyy-MM-ddTHH:mm:ssZ")
+        $endString = (Get-Date).AddDays([int]$Days).ToString("yyyy-MM-ddTHH:mm:ssZ")
+
+        # 設定功能更新的暫緩時間
+        REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /f /v "PauseFeatureUpdatesEndTime" /t REG_SZ /d $endString |Out-Null
+        REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /f /v "PauseFeatureUpdatesStartTime" /t REG_SZ /d $startString |Out-Null
+        # 設定質量更新的暫緩時間
+        REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /f /v "PauseQualityUpdatesEndTime" /t REG_SZ /d $endString |Out-Null
+        REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /f /v "PauseQualityUpdatesStartTime" /t REG_SZ /d $startString |Out-Null
+        # 暫緩設定的有效期
+        REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /f /v "PauseUpdatesExpiryTime" /t REG_SZ /d $endString |Out-Null
+        
+        Write-Host "已暫緩更新 $Days 日, 更新會在 $((Get-Date).AddDays([int]$Days+1).ToString("D")) 繼續"
+    } elseif ($RestoreDefault) {
+        Remove-Registry "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" "PauseFeatureUpdatesEndTime"
+        Remove-Registry "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" "PauseFeatureUpdatesStartTime"
+        Remove-Registry "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" "PauseQualityUpdatesEndTime"
+        Remove-Registry "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" "PauseQualityUpdatesStartTime"
+        Remove-Registry "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" "PauseUpdatesExpiryTime"
+        Write-Host "已復原暫緩更新設定"
+    }
+
+} # Set-WinUpdatePause 30
+# Set-WinUpdatePause -RestoreDefault
+
+
+
 # 鎖定Windows版本
 function LockWindowsVersion {
     param (
