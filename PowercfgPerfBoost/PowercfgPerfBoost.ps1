@@ -1,18 +1,21 @@
 # 預設電源方案
-[string] $Powercfg_PowerSaver      = 'a1841308-3541-4fab-bc81-f71556f20b4a'
-[string] $Powercfg_Balanced        = '381b4222-f694-41f0-9685-ff5bb260df2e'
-[string] $Powercfg_HighPerformance = '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c'
-[string] $Powercfg_Current         = 'scheme_current'
-    
+Set-Variable -Name 'Powercfg_PowerSaver'      -Value 'a1841308-3541-4fab-bc81-f71556f20b4a'
+Set-Variable -Name 'Powercfg_Balanced'        -Value '381b4222-f694-41f0-9685-ff5bb260df2e'
+Set-Variable -Name 'Powercfg_HighPerformance' -Value '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c'
+Set-Variable -Name 'Powercfg_Current'         -Value 'scheme_current'
+
+# 獲取電源計畫清單
 function GET-PowercfgScheme {
     Powercfg -List
 }
 
+# 複製電源計畫
 function Copy-PowercfgScheme {
     [Alias('CopyScheme')]
     param (
         [Parameter(Position = 0, ParameterSetName = "", Mandatory)]
-        [string] $Name,     # 新增電源計畫名稱
+        [string] $Name,                # 新增電源計畫名稱
+        [switch] $WithoutOriginalName, # 生成計劃名不包含複製源名稱
         [Parameter(Position = 1, ParameterSetName = "")]
         [string] $GUID,     # 預設: 當前電源計畫
         [switch] $Apply,    # 新增後套用該計畫
@@ -28,29 +31,34 @@ function Copy-PowercfgScheme {
         $SchemeStr = $SchemeStr.Trim(" |*")
     }
     $SchemeName = $SchemeStr -replace($SchemeStr.Substring(0, $SchemeStr.IndexOf(' GUID: ')+7+38)) -replace ("^\(|\)$")
+    
     # 複製計畫
     $SchemeStr = Powercfg -duplicatescheme $GUID
-    if ($SchemeStr) { # 獲取新計畫的GUID
+    # 重新命名
+    if ($SchemeStr) {
         $GUID2 = $SchemeStr.Substring($SchemeStr.IndexOf(' GUID: ')+7, 36)
+        if (!$WithoutOriginalName) { $Name = "$SchemeName ($Name)" }
         Powercfg -changename $GUID2 $Name
     }
+    
     # 輸出報告
     $SchemeStr = ((Powercfg -List) -match $GUID2).Trim(" |*")
     if ($SchemeStr) {
         $SchemeName2 = $SchemeStr -replace($SchemeStr.Substring(0, $SchemeStr.IndexOf(' GUID: ')+7+38)) -replace ("^\(|\)$")
         if (!$OutNull) {
-            Write-Host "電源計畫 `"" -NoNewline
-            Write-Host "$SchemeName2" -NoNewline
-            Write-Host "`" 複製完成, (複製源: `"$SchemeName`")"
+            Write-Host "已建立電源計畫 `"" -NoNewline
+            Write-Host "$SchemeName2" -NoNewline -ForegroundColor DarkGreen
+            Write-Host "`" , 複製源: `"$SchemeName`""
         }
         if ($Apply) { Powercfg -setactive $GUID2 }
     }
     return $GUID2
 } # Copy-PowercfgScheme "關閉睿頻" | Out-Null
+# Copy-PowercfgScheme "關閉睿頻" -WithoutOriginalName | Out-Null
 # Copy-PowercfgScheme "關閉睿頻" -GUID $Powercfg_Balanced | Out-Null
 
 
-
+# 設定 PerfBoost
 function Set-PerfBoost {
     [CmdletBinding(DefaultParameterSetName = "Value")]
     param (
