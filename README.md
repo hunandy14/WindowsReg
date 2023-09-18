@@ -114,6 +114,17 @@ irm bit.ly/SetWinUAC|iex; SetUAC -Default
 
 ```
 
+## 關閉睿頻
+```ps1
+# 複製當前電源方案並關閉睿頻
+irm bit.ly/PerfBoost|iex; Set-PerfBoost 0 (CopyScheme "關閉睿頻") -Apply
+
+# 關閉當前電源方案睿頻
+irm bit.ly/PerfBoost|iex; Set-PerfBoost 0 -Apply
+```
+
+
+
 <br><br>
 
 # 個人化設定
