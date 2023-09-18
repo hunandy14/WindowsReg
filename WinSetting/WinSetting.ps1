@@ -82,6 +82,9 @@ function Setting_User {
     
     # 關閉 edge 桌面搜索條
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge" /v "WebWidgetAllowed" /t REG_DWORD /d 0 /f
+    
+    # 移除右鍵 使用skype共享 的選單
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\PackagedCom\Package\Microsoft.SkypeApp_15.103.3208.0_x64__kzf8qxf38zg5c\Class\{776DBC8D-7347-478C-8D71-791E12EF49D8}" /v "DllPath" /t REG_SZ /d "-Skype\SkypeContext.dll" /f
 }
 # ==================================================================================================
 # 個人用設定
