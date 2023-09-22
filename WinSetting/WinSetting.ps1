@@ -163,6 +163,6 @@ function WindowsActiveKMS {
         cscript -nologo c:\windows\system32\slmgr.vbs -ipk $Key
         cscript -nologo c:\windows\system32\slmgr.vbs -skms $KmsHost
         cscript -nologo c:\windows\system32\slmgr.vbs -ato
-        cscript -nologo c:\windows\system32\slmgr.vbs -xpr
+        cscript -nologo c:\windows\system32\slmgr.vbs -dli
     }
 } # WindowsActiveKMS
