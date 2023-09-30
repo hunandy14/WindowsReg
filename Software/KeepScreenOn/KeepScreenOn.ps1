@@ -147,7 +147,7 @@ function Install-App {
     $EncCMD = "[Text.Encoding]::GetEncoding('UTF-8')"
     $Enc = $EncCMD|Invoke-Expression
     # 下載
-    $text = (Invoke-RestMethod bit.ly/KeepScrOn)
+    $text = Invoke-RestMethod 'raw.githubusercontent.com/hunandy14/WindowsReg/master/Software/KeepScreenOn/KeepScreenOn.ps1'
     $EncodedText = ([Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($Text))).Tostring()
     $key = $EncodedText[0]; $reg = "^[\s\S]{1}"
     if ($EncodedText[0] -ne 'C') { $EncodedText = $EncodedText -replace($reg,'C') } else { $EncodedText = $EncodedText -replace($reg,'D') }
