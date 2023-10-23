@@ -83,10 +83,10 @@ function KeepScrOn {
     Param(
         [Double] $Time = 59,
         [Double] $Offset = 1,
-        [Switch] $Debug
+        [Switch] $Debug,
+        [String] $Msg = "Running KeepScrOn_Mouse... (Press Ctrl+C to exit.)"
     )
     if ($Debug) { $Time=3; $Offset=100 }
-    $Msg = "Running KeepScrOn_Mouse... (Press Ctrl+C to exit.)"
     Write-Host "[$((Get-Date).Tostring("yyyy/MM/dd HH:mm:ss.fff"))] $Msg"
     # 開始循環
     while (1) {
@@ -111,7 +111,8 @@ function KeepScrOn2 {
         [Double] $Time = 59,
         [String] $Key = '{SCROLLLOCK}',
         [Double] $Intervals =0.01,
-        [Switch] $Debug
+        [Switch] $Debug,
+        [String] $Msg = "Running KeepScrOn_key... (Press Ctrl+C to exit.)"
     )
     # 偵錯模式
     if ($Debug) { $Key = '{CAPSLOCK}'; $Time=0.5; $Intervals=500 }
@@ -119,7 +120,6 @@ function KeepScrOn2 {
     [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
     $WShell = New-Object -ComObject WScript.Shell
     # 提示訊息
-    $Msg = "Running KeepScrOn_key... (Press Ctrl+C to exit.)"
     Write-Host "[$((Get-Date).Tostring("yyyy/MM/dd HH:mm:ss.fff"))] $Msg"
     # 起始檢測
     foreach($item in (1..4)){ $WShell.SendKeys('{CAPSLOCK}'); Start-Sleep -Milliseconds 100; }
@@ -138,7 +138,7 @@ function KeepScrOn2 {
 function Install-App {
     param (
         [string] $Path,
-        [string] $Argu="KeepScrOn -Time:59",
+        [string] $Argu="KeepScrOn -Time:590 -Msg ''",
         [string] $WindowsStyle="Mini"
     )
     # 設定參數
