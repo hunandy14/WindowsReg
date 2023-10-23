@@ -23,7 +23,7 @@ function Get-CursorPosition {
         [switch] $Normalization
     )
     # 更新螢幕資訊
-    $ScreenInfo = (GetScreenInfo)
+    $Script:ScreenInfo = (GetScreenInfo)
     # 獲取當前座標
     [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
     $Pos = [System.Windows.Forms.Cursor]::Position
