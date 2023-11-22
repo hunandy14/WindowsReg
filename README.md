@@ -179,3 +179,10 @@ irm bit.ly/UpgradeWinPro|iex
 ```ps1
 (Get-WmiObject SoftwareLicensingService).OA3xOriginalProductKey
 ```
+
+<br>
+
+### 清除歷史信息
+```ps1
+Remove-Item (Get-PSReadlineOption).HistorySavePath
+```
