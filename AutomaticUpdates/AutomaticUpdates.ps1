@@ -66,7 +66,14 @@ function Remove-WinUpdateStorage {
         Stop-Service wuauserv|Out-Null; Start-Sleep 5
     }
     # 刪除緩存
-    if (Test-Path $DLPath) { Remove-Item "$DLPath\*" -Recurse -Force -ErrorAction Stop }
+    if (Test-Path $DLPath) {
+        try {
+            Remove-Item "$DLPath\*" -Recurse -Force -ErrorAction Stop
+        } catch {
+            Write-Error $PSItem.Exception.Message
+            Write-Host "刪除失敗::緩存路徑 $DLPath 部分檔案被鎖住無法刪除，可能是更新正在執行中。嘗試重新執行命令或重新啟動後再執行"
+        }
+    }
     # 成功訊息
     Write-Output "已成功刪除 $DLPath 中的更新暫存檔"
 } # Remove-WinUpdateStorage
