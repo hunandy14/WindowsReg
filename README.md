@@ -91,7 +91,7 @@ irm bit.ly/SkipTPM|iex
 
 ### 下載任意 Windwos 版本
 ```ps1
-irm bit.ly/PtSoftDL|iex; WebDL 'https://raw.githubusercontent.com/AveYo/MediaCreationTool.bat/main/MediaCreationTool.bat' -TempPath -OpenFile
+irm bit.ly/SetWinUpd|iex; Open-MCT
 ```
 
 ### InstantGo

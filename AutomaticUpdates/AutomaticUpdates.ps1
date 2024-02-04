@@ -305,3 +305,15 @@ function OfflineInsiderEnroll {
     $Content | Set-Content $Path
     cmd.exe /x /d /c call $Path
 } # OfflineInsiderEnroll
+
+
+
+# 打開 AveYo/MediaCreationTool 工具
+function Open_AveYo_MediaCreationTool {
+    [Alias("Open-MCT")] param()
+    $Url = 'https://raw.githubusercontent.com/AveYo/MediaCreationTool.bat/main/MediaCreationTool.bat'
+    $UrlFileName = ($Url -split "/")[-1]
+    $FileFullPath = Join-Path $env:TEMP $UrlFileName
+    (New-Object Net.WebClient).DownloadFile($Url, $FileFullPath)
+    explorer.exe $FileFullPath
+} # Open_AveYo_MediaCreationTool
