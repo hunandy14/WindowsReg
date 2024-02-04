@@ -89,6 +89,11 @@ irm bit.ly/SetWinUpd|iex; OfflineInsiderEnroll
 irm bit.ly/SkipTPM|iex
 ```
 
+### 下載任意 Windwos 版本
+```ps1
+irm bit.ly/PtSoftDL|iex; WebDL 'https://raw.githubusercontent.com/AveYo/MediaCreationTool.bat/main/MediaCreationTool.bat' -TempPath -OpenFile
+```
+
 ### InstantGo
 ```ps1
 # 關閉現代待機
