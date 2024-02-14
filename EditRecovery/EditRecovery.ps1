@@ -158,9 +158,13 @@ function Set-RecoveryStatus {
 function IsRecoveryPartition {
     param (
         [Parameter(Position = 0, ParameterSetName = "", Mandatory, ValueFromPipeline)]
-        [Object] $Partition
-    )  # ((GPT修復分區 -or MBR修復分區) -and 空磁碟標籤)
-    return ((($Partition.Type -eq 'Recovery') -or ($Partition.MbrType -eq 39)) -and ((($Partition|Get-Volume).FileSystemLabel) -eq ""))
+        [Object] $Partition,
+        [String] $LabelPattern = ""
+    )
+    # 獲取分區標籤
+    $label = ($Partition|Get-Volume).FileSystemLabel
+    # ((GPT修復分區 -or MBR修復分區) -and 空磁碟標籤)
+    return ((($Partition.Type -eq 'Recovery') -or ($Partition.MbrType -eq 39)) -and ($label -like $LabelPattern))
 } # IsRecoveryPartition (Get-Partition -DiskNumber 0 -PartitionNumber 2)
 
 # 獲取RE分區
@@ -172,13 +176,14 @@ function Get-RecoveryPartition {
         [Parameter(ParameterSetName = "CurrentlyUsed")]
         [switch] $CurrentlyUsed,
         [Parameter(ParameterSetName = "CurrentlyUsed")]
-        [switch] $ForceEnable # 查詢完會保持開啟狀態(維持返回物件與真實狀況的一致性)
+        [switch] $ForceEnable, # 查詢完會保持開啟狀態(維持返回物件與真實狀況的一致性)
+        [String] $LabelPattern = ""
     )
     # 指定磁碟機中所有RE分區
     if ($SystemLetter) {
         $Dri = Get-Partition -DriveLetter $SystemLetter -EA 0
         if ($Dri) {
-            return $Dri |Get-Disk|Get-Partition |Where-Object{ IsRecoveryPartition $_ }
+            return $Dri |Get-Disk|Get-Partition |Where-Object{ IsRecoveryPartition $_ -LabelPattern $LabelPattern }
         } else { return $Null }
     } else { $CurrentlyUsed = $true }
     # 當前系統使用中的RE分區
