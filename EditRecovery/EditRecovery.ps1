@@ -120,6 +120,7 @@ function CompressPartition {
         # if (!$OutNull) { Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3 -MB) ($(FormatCapacity $CurSize -Digit 3 -MB) -> $(FormatCapacity $ReSize -Digit 3 -MB))" }
         if (!$OutNull) { Write-Host "壓縮磁碟空間: $(FormatCapacity ($CmpSize) -Digit 3) ($(FormatCapacity $CurSize -Digit 3) -> $(FormatCapacity $ReSize -Digit 3))" }
         $Dri|Resize-Partition -Size:$ReSize -ErrorAction Stop|Out-Null
+        Start-Sleep -Seconds 1
         return $Dri|Get-Partition
     } else {
         if (!$OutNull) { Write-Host "未使用空間充足無須壓縮" }
@@ -127,6 +128,45 @@ function CompressPartition {
     } return $Null
 } # CompressPartition C 0MB -Force
 # (Get-Partition -DiskNumber 0 -PartitionNumber 2)|CompressPartition 0
+
+# 新增主分區(對應在MBR中建立第四個主分區)
+function New-PrimaryPartition {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $true)]
+        [string] $DiskNumber,
+        [Parameter(Mandatory = $true)]
+        [string] $SizeMB
+        # [switch] $UseMaximumSize
+    )
+    # 創建前的分區狀況
+    $partitionsBefore = Get-Disk -Number $DiskNumber | Get-Partition
+
+    # 創建分區
+    $msg = "select disk $DiskNumber; create partition primary size=$SizeMB" -split ";" |diskpart.exe
+    $msg = $msg -join " `r`n"
+
+    # 創建後的分區狀況
+    $partitionsAfter = Get-Disk -Number $DiskNumber | Get-Partition
+    
+    # 確認創建的分區
+    $part = @($partitionsAfter | Where-Object { $_.PartitionNumber -notin $partitionsBefore.PartitionNumber })
+    if ($part.Count -ne 1) {
+        Write-Host $msg -ForegroundColor Yellow
+        if (!$part) {
+            Write-Error "分區創建失敗" -EA Stop
+        } else {
+            Write-Error "未知錯誤, 創建後不應該多出2個以上的分區" -EA Stop
+        }
+        return $null
+    }
+    
+    return $part
+} # New-PrimaryPartition -DiskNumber 0 -SizeMB 1024
+
+
+
+
 
 # 獲取RE系統當前狀態
 function Get-RecoveryStatus {
@@ -238,7 +278,9 @@ function New-RecoveryPartition {
             "select disk $DiskNumber; select partition $PartitionNumber; set id=$TypeID override; gpt attributes=$Attributes" -split ";" |diskpart.exe |Out-Null
         } else { return $Null}
     } elseif ($DiskType -eq "MBR") {
-        $RePart = (($Dri|New-Partition -Size $Size)|Format-Volume)|Get-Partition
+        $Size = ($Size)/1024/1024
+        $NewPart = New-PrimaryPartition -DiskNumber $DiskNumber -SizeMB $Size
+        $RePart = $NewPart |Format-Volume |Get-Partition
         if ($RePart) {
             $RePart|Set-Partition -MbrType 39
         } else { return $Null}
