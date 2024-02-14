@@ -265,6 +265,7 @@ function New-RecoveryPartition {
     $DiskNumber = ($Dri|Get-Disk).DiskNumber
     if (!$Dri) { Write-Error "找不到磁碟槽位 `"$CompressDriveLetter`:\`", 輸入可能有誤" }
     CompressPartition -DriveLetter $CompressDriveLetter -Size $Size |Out-Null
+    Start-Sleep -Seconds 2
     $Size = $Size-$MinGapSize
     # 判斷磁碟型態
     $DiskType = ($Dri|Get-Disk).PartitionStyle
