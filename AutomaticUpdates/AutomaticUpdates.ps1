@@ -68,13 +68,15 @@ function Remove-WinUpdateStorage {
     # 刪除緩存
     if (Test-Path $DLPath) {
         try {
+            Write-Host "正在刪除 '$DLPath' 中的更新暫存檔..." -NoNewline
             Remove-Item "$DLPath\*" -Recurse -Force -ErrorAction Stop
         } catch {
-            Write-Error "刪除失敗:: $($PSItem.Exception.Message), 緩存路徑 '$DLPath' 中部分檔案無法刪除" -EA Stop
+            Write-Host "部分檔案發生錯誤" -ForegroundColor Yellow
+            Remove-Item "$DLPath\*" -Recurse -Force -ErrorAction Stop
         }
     }
     # 成功訊息
-    Write-Output "已成功刪除 $DLPath 中的更新暫存檔"
+    Write-Host "成功" -ForegroundColor DarkGreen
 } # Remove-WinUpdateStorage
 
 
