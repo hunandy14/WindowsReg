@@ -70,8 +70,7 @@ function Remove-WinUpdateStorage {
         try {
             Remove-Item "$DLPath\*" -Recurse -Force -ErrorAction Stop
         } catch {
-            Write-Error $PSItem.Exception.Message
-            Write-Host "刪除失敗::緩存路徑 $DLPath 部分檔案被鎖住無法刪除，可能是更新正在執行中。嘗試重新執行命令或重新啟動後再執行"
+            Write-Error "刪除失敗:: $($PSItem.Exception.Message), 緩存路徑 '$DLPath' 中部分檔案無法刪除" -EA Stop
         }
     }
     # 成功訊息
