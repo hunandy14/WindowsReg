@@ -1,3 +1,34 @@
+# 拆分輸出的信息流
+function Split-OutputStreams {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [System.Array]$InputObjects
+    )
+    
+    Begin {
+        $allInputObjects = @()
+    }
+    
+    Process {
+        $allInputObjects += $InputObjects
+    }
+    
+    End {
+        $errorMessages = $allInputObjects | 
+            Where-Object { $_ -is [System.Management.Automation.ErrorRecord] -and $_.Exception.Message.Trim() } | 
+            ForEach-Object { $_.Exception.Message }
+
+        $outputMessages = $allInputObjects |
+            Where-Object { !($_ -is [System.Management.Automation.ErrorRecord]) -and $_.ToString().Trim() }
+
+        return @{
+            OutputMessages = $outputMessages
+            ErrorMessages = $errorMessages
+        }
+    }
+} # Split-OutputStreams $msg
+
 # 格式化容量單位
 function FormatCapacity {
     param (
@@ -170,7 +201,15 @@ function New-PrimaryPartition {
 
 # 獲取RE系統當前狀態
 function Get-RecoveryStatus {
-    $RecoveryPath = [string]((reagentc /info) -match("\\\\\?\\GLOBALROOT\\device"))
+    $out = (reagentc /info 2>&1) |Split-OutputStreams
+    if ($LASTEXITCODE) {
+        $outMsg = $out.OutputMessages
+        $errMsg = if($out.ErrorMessages){' ('+$out.ErrorMessages+')'}
+        if ($outMsg) { Write-Host $outMsg }
+        Write-Error "RE系統狀態獲取失敗$errMsg" -EA Stop
+        return $null
+    }
+    $RecoveryPath = $out.OutputMessages -match("\\\\\?\\GLOBALROOT\\device")
     if ($RecoveryPath) { return $true } else { return $false }
 } # Get-RecoveryStatus
 
@@ -178,21 +217,59 @@ function Get-RecoveryStatus {
 function Set-RecoveryStatus {
     param (
         [Parameter(Position = 0, ParameterSetName = "Status", Mandatory)]
-        [ValidateSet( 'Enable', 'Disable' )]
-        [String] $Status,
-        [Switch] $ShowInfo
+        [ValidateSet('Enable', 'Disable', 'ReEnable', 'ReMapping')]
+        [String]$Status,
+        [Parameter(ParameterSetName = "")]
+        [Switch]$ShowInfo
     )
-    # 獲取RE系統的初始狀態
-    $InitStatus = Get-RecoveryStatus
-    # 設置RE系統狀態
-    if ($Status -eq 'Enable') { # 啟用RE系統
-        if (!$InitStatus) { reagentc /Enable |Out-Null }
-    } elseif ($Status -eq 'Disable') { # 禁用RE系統
-        if ($InitStatus) { reagentc /Disable |Out-Null }
+    
+    # 啟用RE系統
+    function EnableRecovery {
+        if (-not (Get-RecoveryStatus)) {
+            $out = (reagentc /Enable 2>&1) |Split-OutputStreams
+            if ($LASTEXITCODE) {
+                $outMsg = $out.OutputMessages
+                $errMsg = if($out.ErrorMessages){' ('+$out.ErrorMessages+')'}
+                if ($outMsg) { Write-Host $outMsg }
+                Write-Error "RE系統啟用失敗$errMsg" -EA Stop
+            }
+        }
+        
     }
+    # 禁用RE系統
+    function DisableRecovery {
+        if (Get-RecoveryStatus) {
+            $out = (reagentc /Disable 2>&1) |Split-OutputStreams
+            if ($LASTEXITCODE) {
+                $outMsg = $out.OutputMessages
+                $errMsg = if($out.ErrorMessages){' ('+$out.ErrorMessages+')'}
+                if ($outMsg) { Write-Host $outMsg }
+                Write-Error "RE系統禁用失敗$errMsg" -EA Stop
+            }
+        }
+    }
+    # 重新映射RE系統
+    function ReMappingRecovery {
+        EnableRecovery
+        $reAgentXML = "C:\Windows\System32\Recovery\ReAgent.xml"
+        Rename-Item $reAgentXML "$reAgentXML.tmp" -ErrorAction SilentlyContinue
+        DisableRecovery
+        EnableRecovery
+    }
+    
+    # 設置RE系統狀態
+    switch ($Status) { 
+        'Enable' { EnableRecovery }
+        'Disable' { DisableRecovery }
+        'ReEnable' { DisableRecovery; EnableRecovery }
+        'ReMapping' { ReMappingRecovery }
+    }
+    
     # 顯示設置後的狀態
-    if ($ShowInfo) { reagentc /Info |Format-Table }
-} # Set-RecoveryStatus -Status Enable
+    if ($ShowInfo) {
+        Write-Host (reagentc /Info |Out-String)
+    }
+} # Set-RecoveryStatus -Status Enable -ShowInfo
 
 # 判定是否為RE分區
 function IsRecoveryPartition {
@@ -257,7 +334,9 @@ function New-RecoveryPartition {
         [Parameter(ParameterSetName = "")]
         [String] $CompressDriveLetter = 'C',
         [Parameter(ParameterSetName = "")]
-        [Switch] $RestartRecovery
+        [Switch] $ReMappingRecovery,
+        [Parameter(ParameterSetName = "")] [Alias("RestartRecovery")]
+        [Switch] $ReEnableRecovery
     )
     # 獲取目標分區
     $MinGapSize = 1048576
@@ -279,7 +358,7 @@ function New-RecoveryPartition {
             "select disk $DiskNumber; select partition $PartitionNumber; set id=$TypeID override; gpt attributes=$Attributes" -split ";" |diskpart.exe |Out-Null
         } else { return $Null}
     } elseif ($DiskType -eq "MBR") {
-        $Size = ($Size)/1024/1024
+        $Size = $Size/1MB
         $NewPart = New-PrimaryPartition -DiskNumber $DiskNumber -SizeMB $Size
         $RePart = $NewPart |Format-Volume |Get-Partition
         if ($RePart) {
@@ -287,12 +366,13 @@ function New-RecoveryPartition {
         } else { return $Null}
     }
     # 重新啟用RE系統
-    if ($RestartRecovery) {
-        if ((Get-RecoveryStatus)) { reagentc /disable|Out-Null }
-        reagentc /enable|Out-Null; reagentc /info
+    if ($ReMappingRecovery) {
+        Set-RecoveryStatus ReMapping -ShowInfo
+    } elseif ($ReEnableRecovery) {
+        Set-RecoveryStatus ReEnable -ShowInfo
     }
     return ($RePart|Get-Partition)
-} # New-RecoveryPartition -Size 1024MB -RestartRecovery
+} # New-RecoveryPartition -Size 1024MB -ReMappingRecovery
 
 # 刪除RE分區
 function Remove-RecoveryPartition {

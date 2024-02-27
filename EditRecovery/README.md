@@ -48,9 +48,11 @@ Reagentc -Disable |Out-Null; Reagentc -Enable |Out-Null; Reagentc /Info
 ## New-RecoveryPartition
 新增RE分區
 
-- -Size  
+- -Size
 新增的分區大小，預設是1024MB
 - -CompressDriveLetter  
 從哪個分區壓縮，預設是C槽
-- -RestartRecovery  
-新增完是否重新啟動RE分區
+- -ReEnableRecovery  
+新增完是否重新映射RE分區
+- -ReEnableRecovery  
+新增完是否重啟RE分區
