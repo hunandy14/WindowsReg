@@ -3,6 +3,10 @@ WindwosRE系統 - 修復分區編輯工具
 
 ![](img/Snipaste_2023-02-23_17-12-11.png)
 
+
+
+<br><br><br>
+
 ## 快速使用
 
 刪除當前系統使用中的RE分區
@@ -10,21 +14,56 @@ WindwosRE系統 - 修復分區編輯工具
 irm bit.ly/EditRecovery|iex; Remove-RecoveryPartition -CurrentlyUsed -Merage -ForceEnable
 ```
 
-刪除所有RE分區
+建立RE新區
+```ps1
+irm bit.ly/EditRecovery|iex; New-RecoveryPartition -Size 1025MB -ReEnableRecovery
+```
+
+重新映射RE分區
+```ps1
+irm bit.ly/EditRecovery|iex; Set-RecoveryStatus -Status ReMapping -ShowInfo
+```
+
+<br>
+
+刪除所有RE分區(僅限空白磁碟標籤)
 ```ps1
 irm bit.ly/EditRecovery|iex; (Get-RecoveryPartition -S C) |ForEach {
     $_|Remove-RecoveryPartition -Merage
 }
 ```
 
-建立RE新區
+刪除所有RE分區(任意磁碟標籤)
 ```ps1
-irm bit.ly/EditRecovery|iex; New-RecoveryPartition -RestartRecovery
+irm bit.ly/EditRecovery|iex; (Get-RecoveryPartition -S C -Label '*') |ForEach {
+    $_|Remove-RecoveryPartition -Merage
+}
+```
+
+
+
+<br><br><br>
+
+## Reagentc用法
+
+查看狀態
+```ps1
+Reagentc /Info
+```
+
+啟用
+```ps1
+Reagentc /Enable
+```
+
+禁用
+```ps1
+Reagentc /Disable
 ```
 
 重啟RE系統
 ```ps1
-Reagentc -Disable |Out-Null; Reagentc -Enable |Out-Null; Reagentc /Info
+Reagentc /Disable |Out-Null; Reagentc /Enable |Out-Null; Reagentc /Info
 ```
 
 
