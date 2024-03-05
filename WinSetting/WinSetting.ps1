@@ -49,7 +49,7 @@ function Setting_User {
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{5399E694-6CE5-4D6C-8FCE-1D8870FDCBA0}" /t REG_DWORD /d 1 /f
     # 桌面圖示 - 資源回收桶
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel" /v "{645FF040-5081-101B-9F08-00AA002F954E}" /t REG_DWORD /d 0 /f
-    if ((Get-Process -ProcessName:'explorer' -ErrorAction:SilentlyContinue)) { Stop-Process -ProcessName:'explorer' }
+    # if ((Get-Process -ProcessName:'explorer' -ErrorAction:SilentlyContinue)) { Stop-Process -ProcessName:'explorer' }
 
     # 開機時自動打開鍵盤 NumLock 燈號
     if ($env:USERNAME -ne 'SYSTEM') {
@@ -72,9 +72,6 @@ function Setting_User {
     # rdp遠端桌面連線啟用60fps
     reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations" /v "DWMFRAMEINTERVAL" /t REG_DWORD /d 15 /f
     
-    # 禁止Edge更新時在桌面建立捷徑
-    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\EdgeUpdate" /v "CreateDesktopShortcutDefault" /t REG_DWORD /d 0 /f
-    
     # 關閉 Windwos 開機提示"讓我們完成你的電腦設定"的蓋板頁面
     reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-310093Enabled" /t REG_DWORD /d 0 /f
     reg add "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-310089Enabled" /t REG_DWORD /d 0 /f
@@ -85,6 +82,20 @@ function Setting_User {
     
     # 移除右鍵 使用skype共享 的選單
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\PackagedCom\Package\Microsoft.SkypeApp_15.103.3208.0_x64__kzf8qxf38zg5c\Class\{776DBC8D-7347-478C-8D71-791E12EF49D8}" /v "DllPath" /t REG_SZ /d "-Skype\SkypeContext.dll" /f
+    
+    # Win11設置
+    if ([System.Environment]::OSVersion.Version.Build -ge 2200) {
+        # 自動展開右鍵
+        reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /ve /t REG_SZ /f
+        # 移除右下角 Copilot 標記
+        reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarSd /t REG_DWORD /d 1 /f
+        reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowCopilotButton /t REG_DWORD /d 0 /f
+        # 當我將視窗拖移到螢幕頂端時顯示貼齊版面配置
+        reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v EnableSnapBar /t REG_DWORD /d 0 /f
+    }
+    
+    # 重新啟動explorer
+    if ((Get-Process -ProcessName:'explorer' -ErrorAction:SilentlyContinue)) { Stop-Process -ProcessName:'explorer' }
 }
 # ==================================================================================================
 # 個人用設定
@@ -97,19 +108,23 @@ function VM_Setting {
     Setting_User
     # 檔案管理員預設打開(1本機 2快速存取)
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 1 /f
-    # Win111自動展開右鍵
-    reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /ve /t REG_SZ /f
     # 停用驅動更新模組
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" /v ExcludeWUDriversInQualityUpdate /t REG_DWORD /d 1 /f
-    # 停用Windows 11桌面右下方「不符合系統需求」浮水印
-    reg add "HKEY_CURRENT_USER\Control Panel\UnsupportedHardwareNotificationCache" /v "SV2" /t REG_DWORD /d 0 /f
+    
+    # Win11設置
+    if ([System.Environment]::OSVersion.Version.Build -ge 2200) {
+        # 停用Windows 11桌面右下方「不符合系統需求」浮水印
+        reg add "HKEY_CURRENT_USER\Control Panel\UnsupportedHardwareNotificationCache" /v "SV2" /t REG_DWORD /d 0 /f
+    }
     
     # 阻止 Edge 顯示「首次運行」歡迎頁面
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Edge" /v "HideFirstRunExperience" /t REG_DWORD /d 1 /f
-    # 移除 Edge 未登錄狀態的紅點
-    # reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v "ExperimentationAndConfigurationServiceControl" /t REG_DWORD /d 0 /f
     # 移除 Edge 右上角的Bing圖示
     reg add "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Edge" /v "HubsSidebarEnabled" /t REG_DWORD /d 0 /f
+    # 禁止Edge更新時在桌面建立捷徑
+    reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\EdgeUpdate" /v "CreateDesktopShortcutDefault" /t REG_DWORD /d 0 /f
+    # 移除 Edge 未登錄狀態的紅點 (已失效的樣子)
+    # reg add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v "ExperimentationAndConfigurationServiceControl" /t REG_DWORD /d 0 /f
     
     # 系統設定
     Setting_System2
