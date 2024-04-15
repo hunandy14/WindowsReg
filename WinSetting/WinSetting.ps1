@@ -28,6 +28,8 @@ function Setting_User {
     # 檔案管理員預設打開(1本機 2快速存取)
     reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 2 /f
     
+    # 工作列設置成深色 (資料夾背景:AppsUseLightTheme, 工作列:SystemUsesLightTheme)
+    reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f
     # 工作列按鈕不要合併(0結合 1滿時結合 2不結合)
     reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarGlomLevel /t REG_DWORD /d 2 /f
     # 顯示副檔名
