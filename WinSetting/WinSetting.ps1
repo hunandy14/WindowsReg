@@ -86,11 +86,19 @@ function Setting_User {
     if ([System.Environment]::OSVersion.Version.Build -ge 2200) {
         # 自動展開右鍵
         reg add "HKEY_CURRENT_USER\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" /ve /t REG_SZ /f
+        
         # 移除右下角 Copilot 標記
         reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v TaskbarSd /t REG_DWORD /d 1 /f
         reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowCopilotButton /t REG_DWORD /d 0 /f
+        
         # 當我將視窗拖移到螢幕頂端時顯示貼齊版面配置
         reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v EnableSnapBar /t REG_DWORD /d 0 /f
+        
+        # 多工切換時顯示所有視窗 (預設值2:顯示3個最近使用的索引標籤, 3:不顯示索引標籤)
+        reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "MultiTaskingAltTabFilter" /t REG_DWORD /d 3 /f
+        
+        # 在工作列上的搜尋方塊 (0:隱藏, 1:僅搜尋圖示, 2:搜尋圖示和標籤, 3:搜尋方塊)
+        reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Search" /v "SearchboxTaskbarMode" /t REG_DWORD /d 0 /f
     }
     
     # 重新啟動explorer
