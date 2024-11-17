@@ -187,6 +187,11 @@ irm bit.ly/UpgradeWinPro|iex
 
 <br>
 
+### 同步線上帳號的密碼到本機
+```ps1
+&{runas /u:$args@gmail.com cmd}YourMail
+```
+
 ### 清除歷史信息
 ```ps1
 Remove-Item (Get-PSReadlineOption).HistorySavePath
