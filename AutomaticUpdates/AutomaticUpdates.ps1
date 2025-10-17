@@ -116,7 +116,7 @@ function StopWinUpdate {
         return
     } elseif ($Manual) {
         # 家用版應對
-        if ($IsWindowsHome) { Write-Warning "家用版無法透過群組原則設置手動更新，請使用 `"StopWinUpdate -Stop`" 停止更新"; return }
+        if ($IsWindowsHome) { Write-Warning "家用版無法透過群組原則設置手動更新，請使用 `"Set-WinUpdate -Stop`" 停止更新"; return }
         # 群組原則設定成手動
         $regKey = $Key2 -replace("^HKEY_","Registry::HKEY_")
         if (!(Test-Path $regKey)) { New-Item $regKey -Force |Out-Null }
@@ -130,7 +130,7 @@ function StopWinUpdate {
         return
     } elseif ($NotCheck) {
         # 家用版應對
-        if ($IsWindowsHome) { Write-Warning "家用版無法透過群組原則設置手動更新，請使用 `"StopWinUpdate -Stop`" 停止更新"; return }
+        if ($IsWindowsHome) { Write-Warning "家用版無法透過群組原則設置手動更新，請使用 `"Set-WinUpdate -Stop`" 停止更新"; return }
         # 群組原則設定成不檢查更新
         $regKey = $Key2 -replace("^HKEY_","Registry::HKEY_")
         if (!(Test-Path $regKey)) { New-Item $regKey -Force |Out-Null }
@@ -163,14 +163,14 @@ function StopWinUpdate {
         New-ItemProperty $regKey 'NoAutoRebootWithLoggedOnUsers' -PropertyType:'DWord' -Value '00000001' -Force -EA:0 |Out-Null
         Remove-Registry $key2 NoAutoUpdate -EA:0
         # 輸出信息
-        Write-Host "已停用自動更新 (使用 `"StopWinUpdate -Default`" 命令可以恢復)"
+        Write-Host "已停用自動更新 (使用 `"Set-WinUpdate -Default`" 命令可以恢復)"
         return
     }
 }
-# StopWinUpdate -Default
-# StopWinUpdate -Manual
-# StopWinUpdate -NotCheck
-# StopWinUpdate -Stop
+# Set-WinUpdate -Default
+# Set-WinUpdate -Manual
+# Set-WinUpdate -NotCheck
+# Set-WinUpdate -Stop
 
 
 
