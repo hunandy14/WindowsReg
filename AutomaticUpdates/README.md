@@ -41,6 +41,13 @@ irm bit.ly/SetWinUpd|iex; Set-WUPauseMax -RestoreDefault
 
 ```
 
+<br>
+
+關於家用板停止更新後，具體表現會卡一個錯誤(0x80080005)
+這是妥協了只能這樣了，不想動系統元件破壞系統穩定性
+
+![](img/Win11-24H2-Home-StopUpdate.png)
+
 <br><br><br>
 
 ## 刪除已下載的緩存
